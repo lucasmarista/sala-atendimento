@@ -260,7 +260,6 @@ select:disabled {
   background: var(--sucesso-bg);
   color: var(--sucesso);
   border: 1px solid #a8e6c4;
-  display: flex;
   align-items: center;
   gap: 8px;
 }
@@ -269,7 +268,6 @@ select:disabled {
   background: var(--erro-bg);
   color: var(--erro);
   border: 1px solid #f5c6c2;
-  display: flex;
   align-items: center;
   gap: 8px;
 }
