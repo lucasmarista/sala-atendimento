@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agendamento de Salas – Colégio Marista</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo-area">
+      <div class="logo-circle">M</div>
+      <div class="header-titles">
+        <h1>Colégio Marista</h1>
+        <p>Sistema de Agendamento de Salas de Atendimento</p>
+      </div>
+    </div>
+    <nav>
+      <a href="index.html" class="ativo">📅 Agendar</a>
+      <a href="secretaria.html">🗂️ Secretaria</a>
+    </nav>
+  </div>
+</header>
+
+<div class="container">
+  <div class="card">
+    <div class="card-titulo">📅 Novo Agendamento</div>
+    <p class="card-subtitulo">Preencha os dados abaixo para reservar uma sala de atendimento.</p>
+
+    <form id="form-agendamento" novalidate>
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label for="sala">Sala <span class="obrig">*</span></label>
+          <select id="sala" name="sala" required>
+            <option value="">Selecione a sala...</option>
+            <option value="Sala 1">Sala 1</option>
+            <option value="Sala 2">Sala 2</option>
+            <option value="Sala 3">Sala 3</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="data">Data <span class="obrig">*</span></label>
+          <input type="date" id="data" name="data" required />
+        </div>
+
+        <div class="form-group full">
+          <label>Horário disponível <span class="obrig">*</span></label>
+          <div id="horarios-container">
+            <p style="color: var(--texto-secundario); font-size: 0.88rem; padding: 8px 0;">
+              Selecione a sala e a data para ver os horários disponíveis.
+            </p>
+          </div>
+          <input type="hidden" id="horario" name="horario" required />
+          <div class="horario-legenda" id="legenda" style="display:none">
+            <div class="legenda-item">
+              <div class="legenda-cor" style="background:#eef3ff; border-color:var(--marista-azul-claro)"></div>
+              Disponível
+            </div>
+            <div class="legenda-item">
+              <div class="legenda-cor" style="background:var(--marista-azul); border-color:var(--marista-azul)"></div>
+              Selecionado
+            </div>
+            <div class="legenda-item">
+              <div class="legenda-cor" style="background:#f0f2f7; border-color:#e2e6f0"></div>
+              Ocupado
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group full">
+          <label for="nome_professor">Nome do Professor <span class="obrig">*</span></label>
+          <input type="text" id="nome_professor" name="nome_professor" placeholder="Nome completo do professor" required />
+        </div>
+
+        <div class="form-group">
+          <label for="nome_aluno">Nome do Aluno <span class="obrig">*</span></label>
+          <input type="text" id="nome_aluno" name="nome_aluno" placeholder="Nome completo do aluno" required />
+        </div>
+
+        <div class="form-group">
+          <label for="nome_responsavel">Nome do Responsável <span class="obrig">*</span></label>
+          <input type="text" id="nome_responsavel" name="nome_responsavel" placeholder="Nome do pai/mãe/responsável" required />
+        </div>
+
+      </div>
+
+      <button type="submit" class="btn btn-primario" id="btn-agendar">
+        ✅ Confirmar Agendamento
+      </button>
+    </form>
+
+    <div class="mensagem sucesso" id="msg-sucesso">
+      ✅ <span id="msg-sucesso-texto">Agendamento realizado com sucesso!</span>
+    </div>
+    <div class="mensagem erro" id="msg-erro">
+      ⚠️ <span id="msg-erro-texto"></span>
+    </div>
+  </div>
+</div>
+
+<script>
+  const salaEl = document.getElementById('sala');
+  const dataEl = document.getElementById('data');
+  const horarioEl = document.getElementById('horario');
+  const container = document.getElementById('horarios-container');
+  const legenda = document.getElementById('legenda');
+
+  // Data mínima = hoje
+  const hoje = new Date();
+  const yyyy = hoje.getFullYear();
+  const mm = String(hoje.getMonth() + 1).padStart(2, '0');
+  const dd = String(hoje.getDate()).padStart(2, '0');
+  dataEl.min = `${yyyy}-${mm}-${dd}`;
+  dataEl.value = `${yyyy}-${mm}-${dd}`;
+
+  function carregarHorarios() {
+    const sala = salaEl.value;
+    const data = dataEl.value;
+    if (!sala || !data) return;
+
+    container.innerHTML = '<p style="color:var(--texto-secundario);font-size:0.88rem;padding:8px 0"><span class="loading" style="border-color:rgba(0,61,165,0.2);border-top-color:var(--marista-azul)"></span> Carregando horários...</p>';
+    legenda.style.display = 'none';
+    horarioEl.value = '';
+
+    fetch(`/api/horarios-disponiveis?data=${data}&sala=${encodeURIComponent(sala)}`)
+      .then(r => r.json())
+      .then(({ disponiveis, reservados }) => {
+        const todos = [...disponiveis, ...reservados].sort();
+        if (todos.length === 0) {
+          container.innerHTML = '<p style="color:var(--texto-secundario);font-size:0.88rem">Nenhum horário encontrado.</p>';
+          return;
+        }
+
+        const grid = document.createElement('div');
+        grid.className = 'horarios-grid';
+
+        todos.forEach(h => {
+          const chip = document.createElement('button');
+          chip.type = 'button';
+          chip.className = 'horario-chip';
+          chip.textContent = h;
+
+          if (reservados.includes(h)) {
+            chip.classList.add('ocupado');
+            chip.title = 'Horário já reservado';
+          } else {
+            chip.addEventListener('click', () => {
+              document.querySelectorAll('.horario-chip.selecionado').forEach(c => c.classList.remove('selecionado'));
+              chip.classList.add('selecionado');
+              horarioEl.value = h;
+            });
+          }
+          grid.appendChild(chip);
+        });
+
+        container.innerHTML = '';
+        container.appendChild(grid);
+        legenda.style.display = 'flex';
+      })
+      .catch(() => {
+        container.innerHTML = '<p style="color:var(--erro);font-size:0.88rem">Erro ao carregar horários. Verifique a conexão.</p>';
+      });
+  }
+
+  salaEl.addEventListener('change', carregarHorarios);
+  dataEl.addEventListener('change', carregarHorarios);
+
+  // Submit
+  document.getElementById('form-agendamento').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    ocultarMensagens();
+
+    const sala = salaEl.value;
+    const data = dataEl.value;
+    const horario = horarioEl.value;
+    const nome_aluno = document.getElementById('nome_aluno').value.trim();
+    const nome_responsavel = document.getElementById('nome_responsavel').value.trim();
+    const nome_professor = document.getElementById('nome_professor').value.trim();
+
+    if (!sala || !data || !horario || !nome_aluno || !nome_responsavel || !nome_professor) {
+      mostrarErro('Por favor, preencha todos os campos e selecione um horário.');
+      return;
+    }
+
+    const btn = document.getElementById('btn-agendar');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="loading"></span> Agendando...';
+
+    try {
+      const resp = await fetch('/api/agendamentos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sala, data, horario, nome_aluno, nome_responsavel, nome_professor })
+      });
+      const json = await resp.json();
+
+      if (resp.ok) {
+        const dataFormatada = new Date(data + 'T12:00:00').toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+        document.getElementById('msg-sucesso-texto').textContent =
+          `Agendamento confirmado! ${sala} reservada para ${horario} em ${dataFormatada}.`;
+        document.getElementById('msg-sucesso').style.display = 'flex';
+        document.getElementById('form-agendamento').reset();
+        horarioEl.value = '';
+        container.innerHTML = '<p style="color: var(--texto-secundario); font-size: 0.88rem; padding: 8px 0;">Selecione a sala e a data para ver os horários disponíveis.</p>';
+        legenda.style.display = 'none';
+      } else {
+        mostrarErro(json.erro || 'Erro ao realizar agendamento.');
+      }
+    } catch {
+      mostrarErro('Erro de conexão. Tente novamente.');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '✅ Confirmar Agendamento';
+    }
+  });
+
+  function mostrarErro(msg) {
+    document.getElementById('msg-erro-texto').textContent = msg;
+    document.getElementById('msg-erro').style.display = 'flex';
+  }
+
+  function ocultarMensagens() {
+    document.getElementById('msg-sucesso').style.display = 'none';
+    document.getElementById('msg-erro').style.display = 'none';
+  }
+
+  // Carrega horários ao abrir se já tiver data selecionada
+  carregarHorarios();
+</script>
+</body>
+</html>
