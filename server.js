@@ -101,7 +101,7 @@ app.get('/api/agendamentos', async (req, res) => {
   try {
     let query, params;
     if (data) {
-      query = 'SELECT * FROM agendamentos WHERE data = $1 ORDER BY sala ASC, horario ASC';
+      query = 'SELECT * FROM agendamentos WHERE data = $1 ORDER BY data ASC, horario ASC, sala ASC';
       params = [data];
     } else {
       query = 'SELECT * FROM agendamentos ORDER BY data ASC, sala ASC, horario ASC';
