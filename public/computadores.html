@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reserva de Computadores – Colégio Marista Birigui</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="app.js"></script>
+</head>
+<body>
+
+<header class="topo">
+  <div class="topo-inner">
+    <a class="marca" href="index.html">
+      <span class="marca-logo">M</span>
+      <span class="marca-texto"><strong>Colégio Marista Birigui</strong><small>Reservas e agendamentos</small></span>
+    </a>
+    <nav class="abas">
+      <a href="index.html"><svg class="ic" viewBox="0 0 24 24"><path d="M13 4h3a2 2 0 0 1 2 2v14"/><path d="M2 20h3M13 20h9M10 12v.01"/><path d="M13 4.56v16.16a1 1 0 0 1-1.24.97L5 20V5.56a2 2 0 0 1 1.52-1.94l4-1A2 2 0 0 1 13 4.56Z"/></svg>Salas</a>
+      <a href="computadores.html" class="ativo"><svg class="ic" viewBox="0 0 24 24"><path d="M20 16V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9m16 0H4m16 0 1.28 2.55a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45L4 16"/></svg>Computadores</a>
+      <a href="secretaria.html"><svg class="ic" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/></svg>Relatório</a>
+    </nav>
+    <button class="btn-icone" id="btn-tema" type="button"></button>
+  </div>
+</header>
+
+<main>
+<div class="container">
+  <div class="pagina-titulo">
+    <h1>Reservar computadores</h1>
+    <p>Escolha o dia, o horário e quantos computadores a turma precisa. Os computadores reservados são descontados na hora.</p>
+  </div>
+
+  <form class="card" id="form-reserva" novalidate>
+
+    <section class="etapa">
+      <div class="etapa-titulo"><span class="etapa-num">1</span> Data e quantidade</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="data">Data <span class="obrig">*</span></label>
+          <input type="date" id="data" required />
+          <span class="dica" id="dia-semana"></span>
+        </div>
+        <div class="form-group">
+          <label for="quantidade">Quantos computadores? <span class="obrig">*</span></label>
+          <div class="contador">
+            <button type="button" id="qtd-menos" aria-label="Diminuir">−</button>
+            <input type="number" id="quantidade" min="1" value="1" inputmode="numeric" />
+            <button type="button" id="qtd-mais" aria-label="Aumentar">+</button>
+          </div>
+          <span class="dica" id="qtd-dica"></span>
+        </div>
+      </div>
+    </section>
+
+    <section class="etapa">
+      <div class="etapa-titulo"><span class="etapa-num">2</span> Horário</div>
+
+      <div class="rotulo" style="margin-bottom:8px">Atalho pelas aulas</div>
+      <p class="dica" style="margin:-4px 0 10px">Clique em uma aula. Para pegar mais de uma seguida, clique depois na última.</p>
+      <div class="aulas-grid" id="aulas"></div>
+
+      <div class="form-grid" style="margin-top:16px">
+        <div class="form-group">
+          <label for="inicio">Início <span class="obrig">*</span></label>
+          <input type="time" id="inicio" step="300" required />
+        </div>
+        <div class="form-group">
+          <label for="fim">Fim <span class="obrig">*</span></label>
+          <input type="time" id="fim" step="300" required />
+        </div>
+      </div>
+
+      <div id="verificacao" aria-live="polite"></div>
+
+      <details class="dia" id="painel-dia" open>
+        <summary>Disponibilidade do dia</summary>
+        <div id="linha-tempo"><div class="vazio"><span class="loading"></span> Carregando...</div></div>
+      </details>
+    </section>
+
+    <section class="etapa">
+      <div class="etapa-titulo"><span class="etapa-num">3</span> Dados da reserva</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="nome_professor">Professor <span class="obrig">*</span></label>
+          <input type="text" id="nome_professor" placeholder="Nome completo do professor" autocomplete="name" required />
+        </div>
+        <div class="form-group">
+          <label for="turma">Turma <span class="obrig">*</span></label>
+          <input type="text" id="turma" placeholder="Ex.: 8º ano B" required />
+        </div>
+        <div class="form-group full">
+          <label for="observacao">Observação</label>
+          <textarea id="observacao" placeholder="Ex.: atividade no Google Forms, precisa de fones"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <button type="submit" class="btn btn-primario btn-grande" id="btn-reservar" disabled>Confirmar reserva</button>
+
+    <div class="mensagem sucesso" id="msg-sucesso">
+      <svg class="ic" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg><span></span>
+    </div>
+    <div class="mensagem erro" id="msg-erro">
+      <svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg><span></span>
+    </div>
+  </form>
+</div>
+</main>
+
+<footer class="rodape">FEITO POR LUCAS PUERTAS</footer>
+
+<script>
+  // Horários das aulas da manhã (usados só como atalho; o professor pode digitar qualquer horário)
+  const AULAS = [
+    { nome: '1ª aula', inicio: '07:00', fim: '07:40' },
+    { nome: '2ª aula', inicio: '07:40', fim: '08:20' },
+    { nome: '3ª aula', inicio: '08:20', fim: '09:05' },
+    { nome: '4ª aula', inicio: '09:25', fim: '10:15' },
+    { nome: '5ª aula', inicio: '10:15', fim: '11:05' },
+    { nome: '6ª aula', inicio: '11:05', fim: '12:00' }
+  ];
+
+  const form = document.getElementById('form-reserva');
+  const dataEl = document.getElementById('data');
+  const qtdEl = document.getElementById('quantidade');
+  const inicioEl = document.getElementById('inicio');
+  const fimEl = document.getElementById('fim');
+  const verificacaoEl = document.getElementById('verificacao');
+  const btnReservar = document.getElementById('btn-reservar');
+  const TEXTO_BOTAO = 'Confirmar reserva';
+
+  let dia = null;            // resposta de /api/computadores/disponibilidade
+  let aulaInicial = null;    // índice da aula clicada primeiro no atalho
+  let enviando = false;
+
+  dataEl.min = hojeISO();
+  dataEl.value = hojeISO();
+
+  const min = h => { const [a, b] = h.split(':').map(Number); return a * 60 + b; };
+  const plural = (n, um, varios) => `${n} ${n === 1 ? um : varios}`;
+  const pcs = n => plural(n, 'computador', 'computadores');
+
+  function quantidade() {
+    return Math.max(parseInt(qtdEl.value, 10) || 0, 0);
+  }
+
+  // Trechos do dia que se sobrepõem ao intervalo [inicio, fim)
+  function noIntervalo(inicio, fim) {
+    return dia.segmentos.filter(s => min(s.inicio) < min(fim) && min(s.fim) > min(inicio));
+  }
+
+  // O que está usando computadores durante um trecho
+  function emUso(seg) {
+    return dia.ocupacoes.filter(o => min(o.inicio) <= min(seg.inicio) && min(seg.inicio) < min(o.fim));
+  }
+
+  function livresNoIntervalo(inicio, fim) {
+    const segs = noIntervalo(inicio, fim);
+    return segs.length ? Math.min(...segs.map(s => s.livres)) : 0;
+  }
+
+  async function carregarDia() {
+    const data = dataEl.value;
+    document.getElementById('dia-semana').textContent = data ? formatarData(data, { weekday: 'long' }) : '';
+    dia = null;
+    analisar();
+    if (!data) return;
+
+    document.getElementById('linha-tempo').innerHTML = '<div class="vazio"><span class="loading"></span> Carregando...</div>';
+    try {
+      const resp = await fetch(`/api/computadores/disponibilidade?data=${data}`);
+      if (!resp.ok) throw new Error();
+      dia = await resp.json();
+      inicioEl.min = fimEl.min = dia.abertura;
+      inicioEl.max = fimEl.max = dia.fechamento;
+      qtdEl.max = dia.total;
+      document.getElementById('qtd-dica').textContent = `A escola tem ${pcs(dia.total)} no total.`;
+      if (quantidade() > dia.total) qtdEl.value = dia.total;
+      desenharAulas();
+      desenharLinhaTempo();
+      analisar();
+    } catch {
+      document.getElementById('linha-tempo').innerHTML = '<div class="vazio" style="color:var(--erro)">Erro ao carregar a disponibilidade. Verifique a conexão.</div>';
+    }
+  }
+
+  function desenharAulas() {
+    const q = quantidade();
+    const el = document.getElementById('aulas');
+    el.innerHTML = '';
+    AULAS.forEach((a, i) => {
+      const livres = livresNoIntervalo(a.inicio, a.fim);
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'horario-chip aula-chip';
+      if (livres < q) chip.classList.add('insuficiente');
+      if (inicioEl.value && fimEl.value && min(a.inicio) >= min(inicioEl.value) && min(a.fim) <= min(fimEl.value)) chip.classList.add('selecionado');
+      chip.innerHTML = `${a.nome}<small>${a.inicio}–${a.fim}</small><small class="livres">${livres === 0 ? 'nenhum livre' : plural(livres, 'livre', 'livres')}</small>`;
+      chip.addEventListener('click', () => {
+        if (aulaInicial !== null && i > aulaInicial && min(inicioEl.value) === min(AULAS[aulaInicial].inicio)) {
+          fimEl.value = a.fim;
+          aulaInicial = null;
+        } else {
+          inicioEl.value = a.inicio;
+          fimEl.value = a.fim;
+          aulaInicial = i;
+        }
+        analisar();
+      });
+      el.appendChild(chip);
+    });
+  }
+
+  function desenharLinhaTempo() {
+    const el = document.getElementById('linha-tempo');
+    const temIntervalo = intervaloValido();
+    el.innerHTML = dia.segmentos.map(s => {
+      const uso = emUso(s);
+      const pct = Math.round((s.livres / dia.total) * 100);
+      const nivel = s.livres === 0 ? 'zero' : s.livres < dia.total ? 'parcial' : 'cheio';
+      const destaque = temIntervalo && min(s.inicio) < min(fimEl.value) && min(s.fim) > min(inicioEl.value);
+      return `<div class="trecho${destaque ? ' destaque' : ''}">
+        <div class="trecho-hora">${s.inicio}–${s.fim}</div>
+        <div class="trecho-corpo">
+          <div class="medidor"><span class="${nivel}" style="width:${pct}%"></span></div>
+          <div class="trecho-info"><strong>${s.livres} de ${dia.total} livres</strong>${uso.length ? ' · em uso: ' + uso.map(o => `${escHtml(o.descricao)} (${o.quantidade})`).join(', ') : ''}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function intervaloValido() {
+    return dia && inicioEl.value && fimEl.value && min(fimEl.value) > min(inicioEl.value) &&
+      min(inicioEl.value) >= min(dia.abertura) && min(fimEl.value) <= min(dia.fechamento);
+  }
+
+  // Confere se a quantidade cabe no horário e monta os avisos
+  function analisar() {
+    btnReservar.disabled = true;
+    if (!dia) { verificacaoEl.innerHTML = ''; return; }
+    desenharAulas();
+    desenharLinhaTempo();
+
+    const q = quantidade();
+    const inicio = inicioEl.value;
+    const fim = fimEl.value;
+
+    if (!inicio || !fim) {
+      verificacaoEl.innerHTML = '';
+      return;
+    }
+    if (!intervaloValido()) {
+      verificacaoEl.innerHTML = aviso('falta', 'Horário inválido', `<p>O fim precisa ser depois do início, entre ${dia.abertura} e ${dia.fechamento}.</p>`);
+      return;
+    }
+    if (q < 1) {
+      verificacaoEl.innerHTML = aviso('falta', 'Quantidade inválida', '<p>Escolha pelo menos 1 computador.</p>');
+      return;
+    }
+
+    const segs = noIntervalo(inicio, fim);
+    const minimo = Math.min(...segs.map(s => s.livres));
+
+    if (q <= minimo) {
+      const sobra = minimo - q;
+      verificacaoEl.innerHTML = aviso('ok', `${pcs(q)} disponíveis das ${inicio} às ${fim}`,
+        `<p>${sobra === 0 ? 'Você vai usar todos os computadores livres nesse horário.' : `Depois da sua reserva ainda sobram ${plural(sobra, 'computador livre', 'computadores livres')} nesse horário.`}</p>`);
+      btnReservar.disabled = enviando;
+      return;
+    }
+
+    // Não cabe: mostra onde falta e quando os computadores voltam
+    const faltas = segs.filter(s => s.livres < q);
+    const itens = faltas.map(f => {
+      const corteIni = min(f.inicio) < min(inicio) ? inicio : f.inicio;
+      const corteFim = min(f.fim) > min(fim) ? fim : f.fim;
+      let texto = `<li><strong>Das ${corteIni} às ${corteFim}</strong>: só ${plural(f.livres, 'livre', 'livres')}`;
+      const uso = emUso(f);
+      if (uso.length) texto += ` <span class="fraco">(em uso: ${uso.map(o => `${escHtml(o.descricao)}, ${o.quantidade}`).join('; ')})</span>`;
+      texto += '.';
+
+      // Quando esse trecho termina, quem devolve e quantos ficam livres
+      const idx = dia.segmentos.indexOf(f);
+      const proximo = dia.segmentos[idx + 1];
+      if (proximo && proximo.livres > f.livres) {
+        const devolvem = dia.ocupacoes.filter(o => o.fim === f.fim);
+        const pegam = dia.ocupacoes.filter(o => o.inicio === f.fim);
+        const soma = lista => lista.reduce((s, o) => s + o.quantidade, 0);
+        const nomes = lista => lista.map(o => escHtml(o.descricao)).join(', ');
+        let mudanca = devolvem.length
+          ? `voltam ${pcs(soma(devolvem))} (${nomes(devolvem)})`
+          : `voltam mais ${pcs(proximo.livres - f.livres)}`;
+        if (devolvem.length && pegam.length) mudanca += ` e saem ${soma(pegam)} (${nomes(pegam)})`;
+        texto += `<div class="devolucao">Às <strong>${f.fim}</strong> ${mudanca}. Aí ficam ${plural(proximo.livres, 'livre', 'livres')}${proximo.livres >= q ? ', o que é suficiente para você' : ''}.</div>`;
+      }
+      return texto + '</li>';
+    }).join('');
+
+    // Sugestões
+    const sugestoes = [];
+    if (minimo > 0) sugestoes.push({ texto: `Reservar ${pcs(minimo)} das ${inicio} às ${fim}`, aplicar: () => { qtdEl.value = minimo; } });
+
+    // Começar mais tarde: primeiro horário depois da última falta
+    const ultimaFalta = faltas[faltas.length - 1];
+    if (min(ultimaFalta.fim) < min(fim)) {
+      const novoInicio = ultimaFalta.fim;
+      sugestoes.push({ texto: `Começar às ${novoInicio} (até ${fim})`, aplicar: () => { inicioEl.value = novoInicio; } });
+    }
+
+    // Terminar mais cedo: até o começo da primeira falta
+    const primeiraFalta = faltas[0];
+    if (min(primeiraFalta.inicio) > min(inicio)) {
+      const novoFim = primeiraFalta.inicio;
+      sugestoes.push({ texto: `Terminar às ${novoFim} (desde ${inicio})`, aplicar: () => { fimEl.value = novoFim; } });
+    }
+
+    verificacaoEl.innerHTML = aviso('falta', `Não há ${pcs(q)} livres durante todo esse horário`,
+      `<ul>${itens}</ul>${sugestoes.length ? '<div class="sugestoes-titulo">Sugestões:</div><div class="sugestoes"></div>' : ''}`);
+
+    const caixa = verificacaoEl.querySelector('.sugestoes');
+    sugestoes.forEach(s => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'btn btn-secundario';
+      b.textContent = s.texto;
+      b.addEventListener('click', () => { s.aplicar(); aulaInicial = null; analisar(); });
+      caixa.appendChild(b);
+    });
+  }
+
+  function aviso(tipo, titulo, corpo) {
+    const icone = tipo === 'ok'
+      ? '<svg class="ic" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>'
+      : '<svg class="ic" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4M12 17h.01"/></svg>';
+    return `<div class="aviso ${tipo}">${icone}<div><div class="aviso-titulo">${titulo}</div>${corpo}</div></div>`;
+  }
+
+  function mudarQuantidade(novo) {
+    const max = dia ? dia.total : 99;
+    qtdEl.value = Math.min(Math.max(novo, 1), max);
+    analisar();
+  }
+
+  document.getElementById('qtd-menos').addEventListener('click', () => mudarQuantidade(quantidade() - 1));
+  document.getElementById('qtd-mais').addEventListener('click', () => mudarQuantidade(quantidade() + 1));
+  qtdEl.addEventListener('input', analisar);
+  qtdEl.addEventListener('change', () => mudarQuantidade(quantidade()));
+  inicioEl.addEventListener('input', () => { aulaInicial = null; analisar(); });
+  fimEl.addEventListener('input', () => { aulaInicial = null; analisar(); });
+  dataEl.addEventListener('change', carregarDia);
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    ocultarMensagens();
+
+    const data = dataEl.value;
+    const horario_inicio = inicioEl.value;
+    const horario_fim = fimEl.value;
+    const qtd = quantidade();
+    const nome_professor = document.getElementById('nome_professor').value.trim();
+    const turma = document.getElementById('turma').value.trim();
+    const observacao = document.getElementById('observacao').value.trim();
+
+    if (!data || !intervaloValido() || qtd < 1 || !nome_professor || !turma) {
+      mostrarMensagem('msg-erro', 'Escolha data, horário e quantidade, e preencha professor e turma.');
+      return;
+    }
+
+    enviando = true;
+    btnReservar.disabled = true;
+    btnReservar.innerHTML = '<span class="loading"></span> Reservando...';
+
+    try {
+      const resp = await fetch('/api/computadores', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data, horario_inicio, horario_fim, quantidade: qtd, nome_professor, turma, observacao })
+      });
+      const json = await resp.json();
+
+      if (resp.ok) {
+        const dataFormatada = formatarData(data, { weekday: 'long', day: '2-digit', month: 'long' });
+        document.getElementById('turma').value = '';
+        document.getElementById('observacao').value = '';
+        inicioEl.value = '';
+        fimEl.value = '';
+        mostrarMensagem('msg-sucesso', `Reserva confirmada! ${pcs(qtd)} para ${dataFormatada}, das ${horario_inicio} às ${horario_fim}.`);
+      } else {
+        mostrarMensagem('msg-erro', json.erro || 'Erro ao realizar reserva.');
+      }
+    } catch {
+      mostrarMensagem('msg-erro', 'Erro de conexão. Tente novamente.');
+    } finally {
+      enviando = false;
+      btnReservar.textContent = TEXTO_BOTAO;
+      await carregarDia();
+    }
+  });
+
+  carregarDia();
+</script>
+</body>
+</html>

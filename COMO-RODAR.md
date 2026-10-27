@@ -51,8 +51,20 @@ node -e "require('dotenv').config(); require('./server.js')"
 Ou, mais simples: adicione `require('dotenv').config()` no início do `server.js` para testes locais.
 
 ### 4. Acessar no navegador
-- **Professores:** http://localhost:3000
-- **Secretaria:** http://localhost:3000/secretaria.html
+- **Agendar sala:** http://localhost:3000
+- **Reservar computadores:** http://localhost:3000/computadores.html
+- **Secretaria (relatório):** http://localhost:3000/secretaria.html
+
+### Mudar a quantidade de computadores ou as aulas fixas
+Tudo fica no início do arquivo `computadores.js`:
+- `TOTAL_COMPUTADORES`: quantos computadores a escola tem (hoje, 15).
+- `AULAS_FIXAS`: as aulas semanais que já usam computadores, com o dia da semana, o horário e quantos ficam em uso.
+- `ABERTURA` / `FECHAMENTO`: o intervalo do dia em que é possível reservar.
+
+Os atalhos de aula da página (1ª a 6ª aula) ficam na lista `AULAS`, no `public/computadores.html`.
+
+Depois de editar, publique de novo. A tabela `reservas_computadores` é criada automaticamente
+no Supabase na primeira vez que o servidor sobe.
 
 ---
 
