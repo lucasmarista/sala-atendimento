@@ -60,6 +60,7 @@ Tudo fica no início do arquivo `computadores.js`:
 - `TOTAL_COMPUTADORES`: quantos computadores a escola tem (hoje, 15).
 - `AULAS_FIXAS`: as aulas semanais que já usam computadores, com o dia da semana, o horário e quantos ficam em uso.
 - `ABERTURA` / `FECHAMENTO`: o intervalo do dia em que é possível reservar.
+- `ANTECEDENCIA_HORAS`: com quantas horas de antecedência, no mínimo, a reserva precisa ser feita (hoje, 12).
 
 Os atalhos de aula da página (1ª a 6ª aula) ficam na lista `AULAS`, no `public/computadores.html`.
 

@@ -159,6 +159,21 @@
     return dia.ocupacoes.filter(o => min(o.inicio) <= min(seg.inicio) && min(seg.inicio) < min(o.fim));
   }
 
+  // Antes do primeiro horário permitido pela antecedência mínima?
+  function antesDoPrazo(horario) {
+    const limite = dia.reservaMinima;
+    return `${dataEl.value} ${horario}` < `${limite.data} ${limite.horario}`;
+  }
+
+  // Primeiro dia em que ainda dá para reservar algum horário
+  function primeiroDiaPermitido() {
+    const limite = dia.reservaMinima;
+    if (limite.horario < dia.fechamento) return limite.data;
+    const [y, m, d] = limite.data.split('-').map(Number);
+    const amanha = new Date(y, m - 1, d + 1);
+    return `${amanha.getFullYear()}-${String(amanha.getMonth() + 1).padStart(2, '0')}-${String(amanha.getDate()).padStart(2, '0')}`;
+  }
+
   function livresNoIntervalo(inicio, fim) {
     const segs = noIntervalo(inicio, fim);
     return segs.length ? Math.min(...segs.map(s => s.livres)) : 0;
@@ -176,6 +191,17 @@
       const resp = await fetch(`/api/computadores/disponibilidade?data=${data}`);
       if (!resp.ok) throw new Error();
       dia = await resp.json();
+
+      // Não deixa escolher um dia que já está dentro do prazo de antecedência
+      const primeiro = primeiroDiaPermitido();
+      dataEl.min = primeiro;
+      if (data < primeiro) {
+        dataEl.value = primeiro;
+        return carregarDia();
+      }
+      document.getElementById('dia-semana').textContent =
+        `${formatarData(data, { weekday: 'long' })} · reservas com pelo menos ${dia.antecedenciaHoras} h de antecedência`;
+
       inicioEl.min = fimEl.min = dia.abertura;
       inicioEl.max = fimEl.max = dia.fechamento;
       qtdEl.max = dia.total;
@@ -195,12 +221,14 @@
     el.innerHTML = '';
     AULAS.forEach((a, i) => {
       const livres = livresNoIntervalo(a.inicio, a.fim);
+      const foraDoPrazo = antesDoPrazo(a.inicio);
       const chip = document.createElement('button');
       chip.type = 'button';
       chip.className = 'horario-chip aula-chip';
-      if (livres < q) chip.classList.add('insuficiente');
+      if (livres < q || foraDoPrazo) chip.classList.add('insuficiente');
       if (inicioEl.value && fimEl.value && min(a.inicio) >= min(inicioEl.value) && min(a.fim) <= min(fimEl.value)) chip.classList.add('selecionado');
-      chip.innerHTML = `${a.nome}<small>${a.inicio}–${a.fim}</small><small class="livres">${livres === 0 ? 'nenhum livre' : plural(livres, 'livre', 'livres')}</small>`;
+      const situacao = foraDoPrazo ? 'fora do prazo' : livres === 0 ? 'nenhum livre' : plural(livres, 'livre', 'livres');
+      chip.innerHTML = `${a.nome}<small>${a.inicio}–${a.fim}</small><small class="livres">${situacao}</small>`;
       chip.addEventListener('click', () => {
         if (aulaInicial !== null && i > aulaInicial && min(inicioEl.value) === min(AULAS[aulaInicial].inicio)) {
           fimEl.value = a.fim;
@@ -258,6 +286,12 @@
       verificacaoEl.innerHTML = aviso('falta', 'Horário inválido', `<p>O fim precisa ser depois do início, entre ${dia.abertura} e ${dia.fechamento}.</p>`);
       return;
     }
+    if (antesDoPrazo(inicio)) {
+      const limite = dia.reservaMinima;
+      verificacaoEl.innerHTML = aviso('falta', 'Fora do prazo de reserva',
+        `<p>As reservas precisam ser feitas com pelo menos ${dia.antecedenciaHoras} horas de antecedência. Agora só é possível reservar a partir de <strong>${formatarData(limite.data, { day: '2-digit', month: '2-digit' })} às ${limite.horario}</strong>.</p>`);
+      return;
+    }
     if (q < 1) {
       verificacaoEl.innerHTML = aviso('falta', 'Quantidade inválida', '<p>Escolha pelo menos 1 computador.</p>');
       return;
@@ -268,7 +302,7 @@
 
     if (q <= minimo) {
       const sobra = minimo - q;
-      verificacaoEl.innerHTML = aviso('ok', `${pcs(q)} disponíveis das ${inicio} às ${fim}`,
+      verificacaoEl.innerHTML = aviso('ok', `${pcs(q)} ${q === 1 ? 'disponível' : 'disponíveis'} das ${inicio} às ${fim}`,
         `<p>${sobra === 0 ? 'Você vai usar todos os computadores livres nesse horário.' : `Depois da sua reserva ainda sobram ${plural(sobra, 'computador livre', 'computadores livres')} nesse horário.`}</p>`);
       btnReservar.disabled = enviando;
       return;
@@ -319,7 +353,7 @@
       sugestoes.push({ texto: `Terminar às ${novoFim} (desde ${inicio})`, aplicar: () => { fimEl.value = novoFim; } });
     }
 
-    verificacaoEl.innerHTML = aviso('falta', `Não há ${pcs(q)} livres durante todo esse horário`,
+    verificacaoEl.innerHTML = aviso('falta', `Não há ${pcs(q)} ${q === 1 ? 'livre' : 'livres'} durante todo esse horário`,
       `<ul>${itens}</ul>${sugestoes.length ? '<div class="sugestoes-titulo">Sugestões:</div><div class="sugestoes"></div>' : ''}`);
 
     const caixa = verificacaoEl.querySelector('.sugestoes');

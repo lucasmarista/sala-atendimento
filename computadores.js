@@ -10,6 +10,9 @@ const TOTAL_COMPUTADORES = 15;
 const ABERTURA = '07:00';
 const FECHAMENTO = '18:00';
 
+// Antecedência mínima: só é possível reservar para daqui a pelo menos estas horas
+const ANTECEDENCIA_HORAS = 12;
+
 // Aulas fixas que já usam computadores toda semana.
 // dia: 1 = segunda, 2 = terça, 3 = quarta, 4 = quinta, 5 = sexta
 // emUso: quantos computadores a aula ocupa (15 - 10 = 5 livres nesses horários)
@@ -36,6 +39,24 @@ function emMinutos(horario) {
 // 450 -> "07:30"
 function emHorario(minutos) {
   return `${String(Math.floor(minutos / 60)).padStart(2, '0')}:${String(minutos % 60).padStart(2, '0')}`;
+}
+
+// Data + horário (de Brasília) -> minutos corridos, para comparar momentos de dias diferentes
+function minutosAbsolutos(data, horario) {
+  const [y, m, d] = data.split('-').map(Number);
+  return Date.UTC(y, m - 1, d) / 60000 + emMinutos(horario);
+}
+
+// Minutos corridos -> { data: 'AAAA-MM-DD', horario: 'HH:MM' }
+function deMinutosAbsolutos(minutos) {
+  const dt = new Date(minutos * 60000);
+  const data = `${dt.getUTCFullYear()}-${String(dt.getUTCMonth() + 1).padStart(2, '0')}-${String(dt.getUTCDate()).padStart(2, '0')}`;
+  return { data, horario: emHorario(dt.getUTCHours() * 60 + dt.getUTCMinutes()) };
+}
+
+// Primeiro momento que pode ser reservado, a partir de "agora" em Brasília
+function reservaMinima(agoraData, agoraHorario) {
+  return deMinutosAbsolutos(minutosAbsolutos(agoraData, agoraHorario) + ANTECEDENCIA_HORAS * 60);
 }
 
 // Aulas fixas que acontecem na data (AAAA-MM-DD), no formato de ocupação
@@ -85,8 +106,9 @@ function segmentosNoIntervalo(segmentos, inicio, fim) {
 }
 
 const Computadores = {
-  TOTAL_COMPUTADORES, ABERTURA, FECHAMENTO, AULAS_FIXAS,
-  emMinutos, emHorario, aulasFixasDoDia, calcularSegmentos, segmentosNoIntervalo
+  TOTAL_COMPUTADORES, ABERTURA, FECHAMENTO, ANTECEDENCIA_HORAS, AULAS_FIXAS,
+  emMinutos, emHorario, minutosAbsolutos, reservaMinima,
+  aulasFixasDoDia, calcularSegmentos, segmentosNoIntervalo
 };
 
 if (typeof module !== 'undefined') module.exports = Computadores;

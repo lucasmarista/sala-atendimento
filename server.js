@@ -2,8 +2,9 @@ const express = require('express');
 const { Pool } = require('pg');
 const path = require('path');
 const {
-  TOTAL_COMPUTADORES, ABERTURA, FECHAMENTO,
-  emMinutos, aulasFixasDoDia, calcularSegmentos, segmentosNoIntervalo
+  TOTAL_COMPUTADORES, ABERTURA, FECHAMENTO, ANTECEDENCIA_HORAS,
+  emMinutos, minutosAbsolutos, reservaMinima,
+  aulasFixasDoDia, calcularSegmentos, segmentosNoIntervalo
 } = require('./computadores');
 
 const app = express();
@@ -64,6 +65,17 @@ const REGEX_DATA = /^\d{4}-\d{2}-\d{2}$/;
 // Data de hoje no fuso de Brasília (o servidor do Render roda em UTC)
 function hojeBrasil() {
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Sao_Paulo' }).format(new Date());
+}
+
+// Primeiro dia/horário que pode ser reservado agora (antecedência mínima, no fuso de Brasília)
+function minimoParaReservar() {
+  const p = Object.fromEntries(
+    new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/Sao_Paulo', year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
+    }).formatToParts(new Date()).map(x => [x.type, x.value])
+  );
+  return reservaMinima(`${p.year}-${p.month}-${p.day}`, `${p.hour}:${p.minute}`);
 }
 
 // Tudo o que ocupa computadores numa data: aulas fixas do dia da semana + reservas feitas
@@ -191,6 +203,8 @@ app.get('/api/computadores/disponibilidade', async (req, res) => {
       total: TOTAL_COMPUTADORES,
       abertura: ABERTURA,
       fechamento: FECHAMENTO,
+      antecedenciaHoras: ANTECEDENCIA_HORAS,
+      reservaMinima: minimoParaReservar(),
       segmentos: calcularSegmentos(ocupacoes),
       ocupacoes
     });
@@ -225,6 +239,13 @@ app.post('/api/computadores', async (req, res) => {
       emMinutos(horario_inicio) < emMinutos(ABERTURA) || emMinutos(horario_fim) > emMinutos(FECHAMENTO) ||
       emMinutos(horario_fim) <= emMinutos(horario_inicio)) {
     return res.status(400).json({ erro: `Escolha um horário entre ${ABERTURA} e ${FECHAMENTO}, com o fim depois do início.` });
+  }
+  const minimo = minimoParaReservar();
+  if (minutosAbsolutos(data, horario_inicio) < minutosAbsolutos(minimo.data, minimo.horario)) {
+    const [, mes, dia] = minimo.data.split('-');
+    return res.status(400).json({
+      erro: `As reservas precisam ser feitas com pelo menos ${ANTECEDENCIA_HORAS} horas de antecedência. Agora só é possível reservar a partir de ${dia}/${mes} às ${minimo.horario}.`
+    });
   }
 
   let client;
