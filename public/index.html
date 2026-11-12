@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" href="img/icone.png" />
   <title>Agendamento de Salas – Colégio Marista Birigui</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -14,16 +15,14 @@
 
 <header class="topo">
   <div class="topo-inner">
-    <a class="marca" href="index.html">
-      <span class="marca-logo">M</span>
-      <span class="marca-texto"><strong>Colégio Marista Birigui</strong><small>Reservas e agendamentos</small></span>
+    <a class="marca" href="index.html" aria-label="Colégio Marista Birigui – início">
+      <img src="img/logo-horizontal-branca.png" alt="Colégio Marista Birigui" />
     </a>
     <nav class="abas">
       <a href="index.html" class="ativo"><svg class="ic" viewBox="0 0 24 24"><path d="M13 4h3a2 2 0 0 1 2 2v14"/><path d="M2 20h3M13 20h9M10 12v.01"/><path d="M13 4.56v16.16a1 1 0 0 1-1.24.97L5 20V5.56a2 2 0 0 1 1.52-1.94l4-1A2 2 0 0 1 13 4.56Z"/></svg>Salas</a>
       <a href="computadores.html"><svg class="ic" viewBox="0 0 24 24"><path d="M20 16V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9m16 0H4m16 0 1.28 2.55a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45L4 16"/></svg>Computadores</a>
       <a href="secretaria.html"><svg class="ic" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/></svg>Relatório</a>
     </nav>
-    <button class="btn-icone" id="btn-tema" type="button"></button>
   </div>
 </header>
 
@@ -92,7 +91,12 @@
 </div>
 </main>
 
-<footer class="rodape">FEITO POR LUCAS PUERTAS</footer>
+<footer class="rodape">
+  <div class="rodape-inner">
+    <img src="img/logo-horizontal-azul.png" alt="Colégio Marista Birigui" />
+    <span>FEITO POR LUCAS PUERTAS</span>
+  </div>
+</footer>
 
 <script>
   const form = document.getElementById('form-agendamento');

@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" href="img/icone.png" />
   <title>Reserva de Computadores – Colégio Marista Birigui</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -14,16 +15,14 @@
 
 <header class="topo">
   <div class="topo-inner">
-    <a class="marca" href="index.html">
-      <span class="marca-logo">M</span>
-      <span class="marca-texto"><strong>Colégio Marista Birigui</strong><small>Reservas e agendamentos</small></span>
+    <a class="marca" href="index.html" aria-label="Colégio Marista Birigui – início">
+      <img src="img/logo-horizontal-branca.png" alt="Colégio Marista Birigui" />
     </a>
     <nav class="abas">
       <a href="index.html"><svg class="ic" viewBox="0 0 24 24"><path d="M13 4h3a2 2 0 0 1 2 2v14"/><path d="M2 20h3M13 20h9M10 12v.01"/><path d="M13 4.56v16.16a1 1 0 0 1-1.24.97L5 20V5.56a2 2 0 0 1 1.52-1.94l4-1A2 2 0 0 1 13 4.56Z"/></svg>Salas</a>
       <a href="computadores.html" class="ativo"><svg class="ic" viewBox="0 0 24 24"><path d="M20 16V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9m16 0H4m16 0 1.28 2.55a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45L4 16"/></svg>Computadores</a>
       <a href="secretaria.html"><svg class="ic" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/></svg>Relatório</a>
     </nav>
-    <button class="btn-icone" id="btn-tema" type="button"></button>
   </div>
 </header>
 
@@ -31,13 +30,13 @@
 <div class="container">
   <div class="pagina-titulo">
     <h1>Reservar computadores</h1>
-    <p>Escolha o dia, o horário e quantos computadores a turma precisa. Os computadores reservados são descontados na hora.</p>
+    <p>Escolha o dia, o horário e quantos computadores a turma vai usar.</p>
   </div>
 
   <form class="card" id="form-reserva" novalidate>
 
     <section class="etapa">
-      <div class="etapa-titulo"><span class="etapa-num">1</span> Data e quantidade</div>
+      <div class="etapa-titulo"><span class="etapa-num">1</span> Dia e quantidade</div>
       <div class="form-grid">
         <div class="form-group">
           <label for="data">Data <span class="obrig">*</span></label>
@@ -59,11 +58,11 @@
     <section class="etapa">
       <div class="etapa-titulo"><span class="etapa-num">2</span> Horário</div>
 
-      <div class="rotulo" style="margin-bottom:8px">Atalho pelas aulas</div>
-      <p class="dica" style="margin:-4px 0 10px">Clique em uma aula. Para pegar mais de uma seguida, clique depois na última.</p>
+      <p class="dica" style="margin:-6px 0 12px">Clique na aula. Para mais de uma seguida, clique também na última.</p>
       <div class="aulas-grid" id="aulas"></div>
 
-      <div class="form-grid" style="margin-top:16px">
+      <div class="ou">ou digite o horário</div>
+      <div class="form-grid">
         <div class="form-group">
           <label for="inicio">Início <span class="obrig">*</span></label>
           <input type="time" id="inicio" step="300" required />
@@ -76,14 +75,14 @@
 
       <div id="verificacao" aria-live="polite"></div>
 
-      <details class="dia" id="painel-dia" open>
-        <summary>Disponibilidade do dia</summary>
+      <details class="dia" id="painel-dia">
+        <summary>Ver a disponibilidade do dia inteiro</summary>
         <div id="linha-tempo"><div class="vazio"><span class="loading"></span> Carregando...</div></div>
       </details>
     </section>
 
     <section class="etapa">
-      <div class="etapa-titulo"><span class="etapa-num">3</span> Dados da reserva</div>
+      <div class="etapa-titulo"><span class="etapa-num">3</span> Seus dados</div>
       <div class="form-grid">
         <div class="form-group">
           <label for="nome_professor">Professor <span class="obrig">*</span></label>
@@ -112,7 +111,12 @@
 </div>
 </main>
 
-<footer class="rodape">FEITO POR LUCAS PUERTAS</footer>
+<footer class="rodape">
+  <div class="rodape-inner">
+    <img src="img/logo-horizontal-azul.png" alt="Colégio Marista Birigui" />
+    <span>FEITO POR LUCAS PUERTAS</span>
+  </div>
+</footer>
 
 <script>
   // Horários das aulas da manhã (usados só como atalho; o professor pode digitar qualquer horário)
