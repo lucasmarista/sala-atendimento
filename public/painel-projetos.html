@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" href="img/icone.png" />
+  <title>Painel de Projetos – Colégio Marista Birigui</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="app.js"></script>
+  <script src="recursos.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+
+<!-- Entrada (senha conferida no servidor) -->
+<div class="sobreposicao solida" id="tela-senha">
+  <form class="dialogo centro" id="form-login" novalidate>
+    <img class="logo-login" src="img/logo-vertical-azul.png" alt="Colégio Marista Birigui" />
+    <h2>Painel de projetos</h2>
+    <p>Área da equipe de tecnologia. Digite a senha para continuar.</p>
+    <input type="password" id="input-senha" placeholder="Senha" autocomplete="current-password" />
+    <p class="erro-texto" id="senha-erro"></p>
+    <button type="submit" class="btn btn-primario" style="width:100%">Entrar</button>
+  </form>
+</div>
+
+<header class="topo">
+  <div class="topo-inner">
+    <a class="marca" href="index.html" aria-label="Colégio Marista Birigui – início">
+      <img src="img/logo-horizontal-branca.png" alt="Colégio Marista Birigui" />
+    </a>
+    <nav class="abas">
+      <a href="index.html"><svg class="ic" viewBox="0 0 24 24"><path d="M13 4h3a2 2 0 0 1 2 2v14"/><path d="M2 20h3M13 20h9M10 12v.01"/><path d="M13 4.56v16.16a1 1 0 0 1-1.24.97L5 20V5.56a2 2 0 0 1 1.52-1.94l4-1A2 2 0 0 1 13 4.56Z"/></svg>Salas</a>
+      <a href="computadores.html"><svg class="ic" viewBox="0 0 24 24"><path d="M20 16V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9m16 0H4m16 0 1.28 2.55a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45L4 16"/></svg>Computadores</a>
+      <a href="projetos.html" class="ativo"><svg class="ic" viewBox="0 0 24 24"><path d="M9 18h6M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2Z"/></svg>Projetos</a>
+      <a href="secretaria.html"><svg class="ic" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/></svg>Relatório</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<div class="container wide">
+  <div class="barra-relatorio">
+    <div class="pagina-titulo" style="margin:0">
+      <h1>Painel de projetos</h1>
+      <p>Analise as ideias dos professores e responda com o melhor caminho.</p>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-secundario" id="btn-atualizar" type="button">
+        <svg class="ic" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg> Atualizar
+      </button>
+      <button class="btn btn-sucesso" id="btn-exportar" type="button">
+        <svg class="ic" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg> Exportar Excel
+      </button>
+      <button class="btn btn-secundario" id="btn-sair" type="button">Sair</button>
+    </div>
+  </div>
+
+  <div class="status-cards" id="status-cards"></div>
+
+  <div class="card">
+    <div class="filtros filtros-projetos">
+      <div class="form-group">
+        <label for="filtro-disciplina">Disciplina</label>
+        <select id="filtro-disciplina"></select>
+      </div>
+      <div class="form-group">
+        <label for="filtro-segmento">Segmento</label>
+        <select id="filtro-segmento"></select>
+      </div>
+      <div class="form-group">
+        <label for="filtro-busca">Buscar</label>
+        <input type="text" id="filtro-busca" placeholder="Professor, projeto ou código" />
+      </div>
+    </div>
+  </div>
+
+  <div class="lista-projetos" id="lista"></div>
+</div>
+</main>
+
+<!-- Detalhe do projeto -->
+<div class="sobreposicao gaveta-fundo" id="gaveta-fundo">
+  <aside class="gaveta" id="gaveta" role="dialog" aria-modal="true" aria-labelledby="gaveta-titulo"></aside>
+</div>
+
+<footer class="rodape">
+  <div class="rodape-inner">
+    <img src="img/logo-horizontal-azul.png" alt="Colégio Marista Birigui" />
+    <span>FEITO POR LUCAS PUERTAS</span>
+  </div>
+</footer>
+
+<script>
+  let projetos = [];
+  let filtroStatus = '';
+  let aberto = null;          // projeto aberto na gaveta
+  let confirmarExclusao = false;
+
+  // ---------- Acesso ----------
+  const token = () => { try { return sessionStorage.getItem('apoio_token') || ''; } catch { return ''; } };
+
+  async function api(url, opcoes = {}) {
+    const resp = await fetch(url, {
+      ...opcoes,
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token()}`, ...(opcoes.headers || {}) }
+    });
+    const json = await resp.json().catch(() => ({}));
+    if (resp.status === 401) { pedirSenha(json.erro); throw new Error(json.erro || 'Sessão expirada.'); }
+    if (!resp.ok) throw new Error(json.erro || 'Erro na operação.');
+    return json;
+  }
+
+  function pedirSenha(motivo) {
+    try { sessionStorage.removeItem('apoio_token'); } catch {}
+    const erro = document.getElementById('senha-erro');
+    erro.textContent = motivo || '';
+    erro.style.display = motivo ? 'block' : 'none';
+    document.getElementById('tela-senha').classList.add('visivel');
+    document.getElementById('input-senha').focus();
+  }
+
+  document.getElementById('form-login').addEventListener('submit', async e => {
+    e.preventDefault();
+    const erro = document.getElementById('senha-erro');
+    const btn = e.target.querySelector('button');
+    btn.disabled = true;
+    try {
+      const resp = await fetch('/api/projetos/login', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ senha: document.getElementById('input-senha').value })
+      });
+      const json = await resp.json();
+      if (!resp.ok) throw new Error(json.erro || 'Não foi possível entrar.');
+      try { sessionStorage.setItem('apoio_token', json.token); } catch {}
+      document.getElementById('input-senha').value = '';
+      document.getElementById('tela-senha').classList.remove('visivel');
+      carregar();
+    } catch (err) {
+      erro.textContent = err.message === 'Failed to fetch' ? 'Erro de conexão.' : err.message;
+      erro.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  document.getElementById('btn-sair').addEventListener('click', () => pedirSenha(''));
+
+  // ---------- Lista ----------
+  document.getElementById('filtro-disciplina').innerHTML = '<option value="">Todas</option>' + DISCIPLINAS.map(d => `<option>${escHtml(d)}</option>`).join('');
+  document.getElementById('filtro-segmento').innerHTML = '<option value="">Todos</option>' + SEGMENTOS.map(s => `<option>${escHtml(s)}</option>`).join('');
+
+  async function carregar() {
+    const lista = document.getElementById('lista');
+    if (!projetos.length) lista.innerHTML = '<div class="card vazio"><span class="loading"></span> Carregando projetos...</div>';
+    try {
+      projetos = await api('/api/projetos');
+      desenhar();
+    } catch (err) {
+      if (!document.getElementById('tela-senha').classList.contains('visivel')) {
+        lista.innerHTML = `<div class="card vazio" style="color:var(--erro)">${escHtml(err.message)}</div>`;
+      }
+    }
+  }
+
+  function filtrados(ignorarStatus) {
+    const disc = document.getElementById('filtro-disciplina').value;
+    const seg = document.getElementById('filtro-segmento').value;
+    const busca = document.getElementById('filtro-busca').value.toLowerCase().trim();
+    return projetos.filter(p =>
+      (ignorarStatus || !filtroStatus || p.status === filtroStatus) &&
+      (!disc || p.disciplina === disc) &&
+      (!seg || p.segmento === seg) &&
+      (!busca || [p.professor, p.titulo, p.codigo, p.turma].some(v => (v || '').toLowerCase().includes(busca))));
+  }
+
+  function desenhar() {
+    // Cartões de status (também servem de filtro)
+    const base = filtrados(true);
+    const contagem = id => base.filter(p => p.status === id).length;
+    document.getElementById('status-cards').innerHTML =
+      `<button type="button" class="status-card ${filtroStatus === '' ? 'ativo' : ''}" data-status=""><span class="valor">${base.length}</span><span class="nome">Todos</span></button>` +
+      STATUS_PROJETO.map(s => `<button type="button" class="status-card s-${s.id} ${filtroStatus === s.id ? 'ativo' : ''}" data-status="${s.id}"><span class="valor">${contagem(s.id)}</span><span class="nome">${s.nome}</span></button>`).join('');
+    document.querySelectorAll('.status-card').forEach(b => b.addEventListener('click', () => { filtroStatus = b.dataset.status; desenhar(); }));
+
+    const lista = filtrados(false);
+    const el = document.getElementById('lista');
+    if (!lista.length) {
+      el.innerHTML = `<div class="card vazio">${projetos.length ? 'Nenhum projeto com esses filtros.' : 'Nenhum projeto enviado ainda. Quando um professor enviar, ele aparece aqui.'}</div>`;
+      return;
+    }
+    el.innerHTML = lista.map(p => `
+      <button type="button" class="item-projeto ${p.status === 'novo' ? 'e-novo' : ''}" data-id="${p.id}">
+        <div class="item-principal">
+          <div class="item-titulo">
+            ${p.prioridade === 'alta' ? '<span class="prioridade-alta" title="Prioridade alta">Alta</span>' : ''}
+            <strong>${escHtml(p.titulo)}</strong>
+            ${p.mensagens_novas ? `<span class="badge-msg">${p.mensagens_novas} ${p.mensagens_novas === 1 ? 'mensagem nova' : 'mensagens novas'}</span>` : ''}
+          </div>
+          <div class="item-meta">${escHtml(p.professor)} · ${escHtml(p.disciplina)} · ${escHtml(p.segmento)}${p.turma ? ' · ' + escHtml(p.turma) : ''}</div>
+          ${p.produtos.length ? `<div class="item-produtos">${p.produtos.map(id => `<span class="badge">${escHtml(nomeProduto(id))}</span>`).join('')}</div>` : ''}
+        </div>
+        <div class="item-lado">
+          <span class="status-badge s-${p.status}">${statusProjeto(p.status).nome}</span>
+          <span class="dica">${p.data_entrega ? 'Entrega ' + formatarData(p.data_entrega, { day: '2-digit', month: '2-digit' }) : 'Enviado ' + new Date(p.criado_em).toLocaleDateString('pt-BR')}</span>
+        </div>
+      </button>`).join('');
+    el.querySelectorAll('[data-id]').forEach(b => b.addEventListener('click', () => abrir(Number(b.dataset.id))));
+  }
+
+  ['filtro-disciplina', 'filtro-segmento'].forEach(id => document.getElementById(id).addEventListener('change', desenhar));
+  document.getElementById('filtro-busca').addEventListener('input', desenhar);
+  document.getElementById('btn-atualizar').addEventListener('click', carregar);
+
+  // ---------- Detalhe ----------
+  async function abrir(id) {
+    const gaveta = document.getElementById('gaveta');
+    confirmarExclusao = false;
+    gaveta.innerHTML = '<div class="vazio" style="margin:24px"><span class="loading"></span> Carregando...</div>';
+    document.getElementById('gaveta-fundo').classList.add('visivel');
+    document.body.style.overflow = 'hidden';
+    try {
+      aberto = await api(`/api/projetos/${id}`);
+      desenharDetalhe();
+      // A lista deixa de mostrar "mensagens novas" deste projeto
+      const item = projetos.find(p => p.id === id);
+      if (item) { item.mensagens_novas = 0; desenhar(); }
+    } catch (err) {
+      gaveta.innerHTML = `<div class="vazio" style="margin:24px;color:var(--erro)">${escHtml(err.message)}</div>`;
+    }
+  }
+
+  function fechar() {
+    document.getElementById('gaveta-fundo').classList.remove('visivel');
+    document.body.style.overflow = '';
+    aberto = null;
+  }
+  document.getElementById('gaveta-fundo').addEventListener('click', e => { if (e.target.id === 'gaveta-fundo') fechar(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && aberto) fechar(); });
+
+  function desenharDetalhe() {
+    const p = aberto;
+    const sugeridos = sugerirRecursos(p.produtos);
+    const escolhidos = new Set(p.recursos_recomendados);
+    const categorias = [...new Set(RECURSOS.map(r => r.categoria))];
+    const linha = (rotulo, valor, livre) => valor ? `<div><dt>${rotulo}</dt><dd${livre ? ' class="texto-livre"' : ''}>${valor}</dd></div>` : '';
+    const familiaridade = (FAMILIARIDADE.find(f => f.id === p.familiaridade) || {}).nome;
+    const opcaoRecurso = r => `<label class="chip chip-recurso${sugeridos.includes(r) ? ' sugerido' : ''}" title="${escHtml(r.descricao)}"><input type="checkbox" name="recurso" value="${r.id}" ${escolhidos.has(r.id) ? 'checked' : ''} /><span>${escHtml(r.nome)}</span></label>`;
+
+    document.getElementById('gaveta').innerHTML = `
+      <div class="gaveta-topo">
+        <div>
+          <span class="badge">${escHtml(p.codigo)}</span>
+          <h2 id="gaveta-titulo">${escHtml(p.titulo)}</h2>
+          <p class="dica">${escHtml(p.professor)} · ${escHtml(p.disciplina)} · ${escHtml(p.segmento)}${p.turma ? ' · ' + escHtml(p.turma) : ''}</p>
+        </div>
+        <button type="button" class="btn-fechar" id="btn-fechar" aria-label="Fechar">×</button>
+      </div>
+
+      <div class="gaveta-corpo">
+        <section class="coluna-pedido">
+          <h3>Pedido do professor</h3>
+          <dl class="ficha">
+            ${linha('Contato', escHtml(p.contato))}
+            ${linha('Conteúdo', escHtml(p.conteudo))}
+            ${linha('Ideia', escHtml(p.ideia), true)}
+            ${linha('Objetivos', escHtml(p.objetivos), true)}
+            ${linha('Produção', p.produtos.map(nomeProduto).map(escHtml).join(', '))}
+            ${linha('Começo', p.data_inicio ? formatarData(p.data_inicio) : '')}
+            ${linha('Entrega', p.data_entrega ? formatarData(p.data_entrega) : '')}
+            ${linha('Aulas', p.aulas || '')}
+            ${linha('Alunos', p.num_alunos || '')}
+            ${linha('Tem disponível', p.recursos_disponiveis.map(escHtml).join(', '))}
+            ${linha('Familiaridade', escHtml(familiaridade))}
+            ${linha('Links', escHtml(p.links), true)}
+            ${linha('Enviado em', new Date(p.criado_em).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }))}
+          </dl>
+
+          <h3 style="margin-top:24px">Conversa</h3>
+          <div class="conversa">${p.mensagens.length ? p.mensagens.map(balao).join('') : '<p class="dica">Nenhuma mensagem ainda.</p>'}</div>
+          <form class="responder" id="form-resposta">
+            <textarea id="resposta" rows="2" placeholder="Responder ao professor…"></textarea>
+            <button type="submit" class="btn btn-primario">Enviar</button>
+          </form>
+        </section>
+
+        <form class="coluna-analise" id="form-analise" novalidate>
+          <h3>Sua análise</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="a-status">Status</label>
+              <select id="a-status">${STATUS_PROJETO.map(s => `<option value="${s.id}" ${s.id === p.status ? 'selected' : ''}>${s.nome}</option>`).join('')}</select>
+            </div>
+            <div class="form-group">
+              <label for="a-prioridade">Prioridade</label>
+              <select id="a-prioridade">${['baixa', 'normal', 'alta'].map(v => `<option value="${v}" ${v === p.prioridade ? 'selected' : ''}>${v[0].toUpperCase() + v.slice(1)}</option>`).join('')}</select>
+            </div>
+            <div class="form-group full">
+              <label for="a-reuniao">Conversa marcada com o professor</label>
+              <input type="datetime-local" id="a-reuniao" value="${escHtml(p.reuniao || '')}" />
+            </div>
+          </div>
+
+          <div class="rotulo" style="margin:18px 0 6px">Ferramentas recomendadas</div>
+          <p class="dica" style="margin-bottom:10px">${sugeridos.length ? 'As destacadas combinam com o que o professor quer produzir.' : 'O professor não definiu o formato; escolha as que fizerem sentido.'} Passe o mouse para ver a descrição.</p>
+          ${sugeridos.length ? `<div class="catalogo-grupo"><div class="turno-nome">Sugeridas</div><div class="chips">${sugeridos.map(opcaoRecurso).join('')}</div></div>` : ''}
+          <details class="catalogo">
+            <summary>Ver o catálogo completo (${RECURSOS.length})</summary>
+            ${categorias.map(c => `<div class="catalogo-grupo"><div class="turno-nome">${escHtml(c)}</div><div class="chips">${RECURSOS.filter(r => r.categoria === c && !sugeridos.includes(r)).map(opcaoRecurso).join('')}</div></div>`).join('')}
+          </details>
+
+          <div class="form-group" style="margin-top:18px">
+            <label for="a-proposta">Proposta para o professor</label>
+            <textarea id="a-proposta" rows="6" placeholder="Explique o caminho sugerido: formato, como a turma vai trabalhar, como as ferramentas entram em cada etapa…">${escHtml(p.proposta || '')}</textarea>
+            <span class="dica">O professor vê este texto ao acompanhar o projeto.</span>
+          </div>
+          <div class="form-group" style="margin-top:14px">
+            <label for="a-passos">Próximos passos</label>
+            <textarea id="a-passos" rows="4" placeholder="Ex.: 1) Criar as contas da turma no Canva  2) Aula de apresentação da ferramenta em 20/11…">${escHtml(p.proximos_passos || '')}</textarea>
+          </div>
+          <div class="form-group nota-interna" style="margin-top:14px">
+            <label for="a-notas">Notas internas <span class="dica">(só você vê)</span></label>
+            <textarea id="a-notas" rows="3" placeholder="Anotações, ideias, pendências…">${escHtml(p.notas_internas || '')}</textarea>
+          </div>
+
+          <div class="analise-acoes">
+            <button type="submit" class="btn btn-primario" id="btn-salvar">Salvar análise</button>
+            <span class="dica" id="salvo"></span>
+          </div>
+
+          <div class="analise-extra">
+            <button type="button" class="btn btn-secundario" id="btn-link">Copiar link do professor</button>
+            <button type="button" class="btn btn-secundario" id="btn-resumo">Copiar resumo para WhatsApp</button>
+            <button type="button" class="btn btn-perigo-suave" id="btn-excluir">Excluir projeto</button>
+          </div>
+        </form>
+      </div>`;
+
+    document.getElementById('btn-fechar').addEventListener('click', fechar);
+    document.getElementById('form-analise').addEventListener('submit', salvar);
+    document.getElementById('form-resposta').addEventListener('submit', responder);
+    document.getElementById('btn-link').addEventListener('click', e => copiar(linkProfessor(), e.target));
+    document.getElementById('btn-resumo').addEventListener('click', e => copiar(resumoWhatsApp(), e.target));
+    document.getElementById('btn-excluir').addEventListener('click', excluir);
+  }
+
+  function balao(m) {
+    const quando = new Date(m.criado_em).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+    return `<div class="balao ${m.autor === 'apoio' ? 'meu' : 'dele'}"><div class="balao-autor">${m.autor === 'apoio' ? 'Você' : escHtml(aberto.professor)} · ${quando}</div><div class="texto-livre">${escHtml(m.texto)}</div></div>`;
+  }
+
+  function dadosAnalise() {
+    return {
+      status: document.getElementById('a-status').value,
+      prioridade: document.getElementById('a-prioridade').value,
+      reuniao: document.getElementById('a-reuniao').value,
+      recursos_recomendados: [...new Set([...document.querySelectorAll('input[name="recurso"]:checked')].map(i => i.value))],
+      proposta: document.getElementById('a-proposta').value,
+      proximos_passos: document.getElementById('a-passos').value,
+      notas_internas: document.getElementById('a-notas').value
+    };
+  }
+
+  async function salvar(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btn-salvar');
+    const salvoEl = document.getElementById('salvo');
+    btn.disabled = true;
+    salvoEl.textContent = 'Salvando...';
+    try {
+      const dados = dadosAnalise();
+      await api(`/api/projetos/${aberto.id}`, { method: 'PATCH', body: JSON.stringify(dados) });
+      Object.assign(aberto, dados);
+      const item = projetos.find(p => p.id === aberto.id);
+      if (item) { item.status = dados.status; item.prioridade = dados.prioridade; }
+      desenhar();
+      salvoEl.textContent = `Salvo às ${new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
+    } catch (err) {
+      salvoEl.textContent = '';
+      alert(err.message);
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  async function responder(e) {
+    e.preventDefault();
+    const campo = document.getElementById('resposta');
+    const textoMsg = campo.value.trim();
+    if (!textoMsg) return;
+    const rascunho = dadosAnalise();
+    e.target.querySelector('button').disabled = true;
+    try {
+      await api(`/api/projetos/${aberto.id}/mensagens`, { method: 'POST', body: JSON.stringify({ texto: textoMsg }) });
+      const id = aberto.id;
+      aberto = await api(`/api/projetos/${id}`);
+      // Mantém o que estava sendo digitado na análise e ainda não foi salvo
+      desenharDetalhe();
+      document.getElementById('a-status').value = rascunho.status;
+      document.getElementById('a-prioridade').value = rascunho.prioridade;
+      document.getElementById('a-reuniao').value = rascunho.reuniao;
+      document.getElementById('a-proposta').value = rascunho.proposta;
+      document.getElementById('a-passos').value = rascunho.proximos_passos;
+      document.getElementById('a-notas').value = rascunho.notas_internas;
+      document.querySelectorAll('input[name="recurso"]').forEach(i => { i.checked = rascunho.recursos_recomendados.includes(i.value); });
+    } catch (err) {
+      alert(err.message);
+      e.target.querySelector('button').disabled = false;
+    }
+  }
+
+  async function excluir(e) {
+    if (!confirmarExclusao) {
+      confirmarExclusao = true;
+      e.target.textContent = 'Clique de novo para excluir de vez';
+      return;
+    }
+    try {
+      await api(`/api/projetos/${aberto.id}`, { method: 'DELETE' });
+      projetos = projetos.filter(p => p.id !== aberto.id);
+      fechar();
+      desenhar();
+    } catch (err) {
+      alert(err.message);
+    }
+  }
+
+  const linkProfessor = () => `${location.origin}/projetos.html?codigo=${aberto.codigo}`;
+
+  function resumoWhatsApp() {
+    const d = dadosAnalise();
+    const ferramentas = d.recursos_recomendados.map(recursoPorId).filter(Boolean).map(r => r.nome);
+    // Primeiro nome, pulando "Prof.", "Profa.", "Professora"...
+    const primeiroNome = aberto.professor.split(/\s+/).find(p => !/^prof(a|essor|essora)?\.?$/i.test(p)) || aberto.professor;
+    const partes = [`Olá, ${primeiroNome}! Analisei o projeto "${aberto.titulo}".`];
+    if (d.proposta.trim()) partes.push(d.proposta.trim());
+    if (ferramentas.length) partes.push(`Ferramentas sugeridas: ${ferramentas.join(', ')}.`);
+    if (d.proximos_passos.trim()) partes.push(`Próximos passos:\n${d.proximos_passos.trim()}`);
+    if (d.reuniao) partes.push(`Podemos conversar ${formatarDataHora(d.reuniao)}?`);
+    partes.push(`Os detalhes ficam aqui: ${linkProfessor()}`);
+    return partes.join('\n\n');
+  }
+
+  async function copiar(textoCopiar, botao) {
+    const original = botao.textContent;
+    try {
+      await navigator.clipboard.writeText(textoCopiar);
+      botao.textContent = 'Copiado!';
+    } catch {
+      botao.textContent = 'Não foi possível copiar';
+    }
+    setTimeout(() => { botao.textContent = original; }, 2000);
+  }
+
+  // ---------- Excel ----------
+  document.getElementById('btn-exportar').addEventListener('click', () => {
+    const lista = filtrados(false);
+    if (!lista.length) { alert('Nada para exportar com os filtros atuais.'); return; }
+    const ws = XLSX.utils.json_to_sheet(lista.map(p => ({
+      'Código': p.codigo,
+      'Projeto': p.titulo,
+      'Professor': p.professor,
+      'Disciplina': p.disciplina,
+      'Segmento': p.segmento,
+      'Turma': p.turma || '',
+      'Produção': p.produtos.map(nomeProduto).join(', '),
+      'Status': statusProjeto(p.status).nome,
+      'Prioridade': p.prioridade,
+      'Entrega': p.data_entrega ? p.data_entrega.split('-').reverse().join('/') : '',
+      'Enviado em': new Date(p.criado_em).toLocaleDateString('pt-BR')
+    })));
+    ws['!cols'] = [10, 34, 24, 18, 26, 14, 30, 16, 10, 12, 12].map(w => ({ wch: w }));
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Projetos');
+    XLSX.writeFile(wb, `projetos_${new Date().toISOString().slice(0, 10)}.xlsx`);
+  });
+
+  // ---------- Início ----------
+  if (token()) carregar(); else pedirSenha('');
+  setInterval(() => { if (token() && !aberto) carregar(); }, 60000);
+</script>
+</body>
+</html>

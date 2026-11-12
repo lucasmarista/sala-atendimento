@@ -6,6 +6,7 @@ const {
   emMinutos, minutosAbsolutos, reservaMinima,
   aulasFixasDoDia, calcularSegmentos, segmentosNoIntervalo
 } = require('./computadores');
+const { criarTabelasProjetos, registrarRotasProjetos } = require('./projetos');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -43,11 +44,15 @@ async function inicializarBanco() {
       criado_em TIMESTAMP DEFAULT NOW()
     )
   `);
+  await criarTabelasProjetos(pool);
   console.log('Banco de dados pronto.');
 }
 
+// O Render fica na frente do servidor; isso faz req.ip ser o IP real de quem acessa
+app.set('trust proxy', 1);
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+registrarRotasProjetos(app, pool);
 
 // Horários disponíveis (07:00 às 18:00 de 30 em 30 min)
 function gerarHorarios() {

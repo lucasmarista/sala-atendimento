@@ -67,6 +67,17 @@ Os atalhos de aula da página (1ª a 6ª aula) ficam na lista `AULAS`, no `publi
 Depois de editar, publique de novo. A tabela `reservas_computadores` é criada automaticamente
 no Supabase na primeira vez que o servidor sobe.
 
+### Hub de projetos
+- **Professores:** http://localhost:3000/projetos.html (enviam a ideia e acompanham pelo código)
+- **Painel do apoio:** http://localhost:3000/painel-projetos.html (link discreto no rodapé da página de projetos)
+
+O painel exige a senha guardada na variável de ambiente `PROJETOS_SENHA`.
+No Render: **Environment > Add Environment Variable**, Key `PROJETOS_SENHA`, Value = a senha que você escolher.
+Sem essa variável o painel não abre (aparece um aviso).
+
+Disciplinas, segmentos e o catálogo de ferramentas ficam em `public/recursos.js`.
+As tabelas `projetos` e `projeto_mensagens` são criadas automaticamente no Supabase.
+
 ---
 
 ## PARTE 3 — Publicar no Render

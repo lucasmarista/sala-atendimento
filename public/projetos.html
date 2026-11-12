@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" href="img/icone.png" />
+  <title>Projetos com Tecnologia – Colégio Marista Birigui</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="app.js"></script>
+  <script src="recursos.js"></script>
+</head>
+<body>
+
+<header class="topo">
+  <div class="topo-inner">
+    <a class="marca" href="index.html" aria-label="Colégio Marista Birigui – início">
+      <img src="img/logo-horizontal-branca.png" alt="Colégio Marista Birigui" />
+    </a>
+    <nav class="abas">
+      <a href="index.html"><svg class="ic" viewBox="0 0 24 24"><path d="M13 4h3a2 2 0 0 1 2 2v14"/><path d="M2 20h3M13 20h9M10 12v.01"/><path d="M13 4.56v16.16a1 1 0 0 1-1.24.97L5 20V5.56a2 2 0 0 1 1.52-1.94l4-1A2 2 0 0 1 13 4.56Z"/></svg>Salas</a>
+      <a href="computadores.html"><svg class="ic" viewBox="0 0 24 24"><path d="M20 16V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9m16 0H4m16 0 1.28 2.55a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45L4 16"/></svg>Computadores</a>
+      <a href="projetos.html" class="ativo"><svg class="ic" viewBox="0 0 24 24"><path d="M9 18h6M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2Z"/></svg>Projetos</a>
+      <a href="secretaria.html"><svg class="ic" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/></svg>Relatório</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<div class="container">
+  <div class="pagina-titulo">
+    <h1>Projetos com tecnologia</h1>
+    <p>Conte a sua ideia de projeto. A equipe de tecnologia analisa e sugere as ferramentas e o melhor caminho para aplicar com a turma. Você não precisa saber qual tecnologia usar.</p>
+  </div>
+
+  <ol class="passos">
+    <li><span class="passo-num">1</span><div><strong>Você conta a ideia</strong><span>O que quer trabalhar e com qual turma.</span></div></li>
+    <li><span class="passo-num">2</span><div><strong>A gente analisa</strong><span>Sugerimos ferramentas e um plano.</span></div></li>
+    <li><span class="passo-num">3</span><div><strong>Aplicamos juntos</strong><span>Com apoio durante o projeto.</span></div></li>
+  </ol>
+
+  <div class="segmentado segmentado-largo" role="tablist">
+    <button type="button" data-aba="novo" class="ativo">Enviar um projeto</button>
+    <button type="button" data-aba="acompanhar">Acompanhar meu projeto</button>
+  </div>
+
+  <!-- ===================== Novo projeto ===================== -->
+  <section id="aba-novo">
+    <form class="card" id="form-projeto" novalidate>
+
+      <section class="etapa">
+        <div class="etapa-titulo"><span class="etapa-num">1</span> Sobre você e a turma</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="professor">Seu nome <span class="obrig">*</span></label>
+            <input type="text" id="professor" autocomplete="name" placeholder="Nome completo" />
+          </div>
+          <div class="form-group">
+            <label for="contato">E-mail ou WhatsApp</label>
+            <input type="text" id="contato" placeholder="Para combinarmos os detalhes" />
+          </div>
+          <div class="form-group">
+            <label for="disciplina">Disciplina <span class="obrig">*</span></label>
+            <select id="disciplina"></select>
+          </div>
+          <div class="form-group">
+            <label for="segmento">Segmento <span class="obrig">*</span></label>
+            <select id="segmento"></select>
+          </div>
+          <div class="form-group">
+            <label for="turma">Turma(s)</label>
+            <input type="text" id="turma" placeholder="Ex.: 7º A e 7º B" />
+          </div>
+          <div class="form-group">
+            <label for="num_alunos">Quantos alunos, mais ou menos?</label>
+            <input type="number" id="num_alunos" min="1" inputmode="numeric" placeholder="Ex.: 30" />
+          </div>
+        </div>
+      </section>
+
+      <section class="etapa">
+        <div class="etapa-titulo"><span class="etapa-num">2</span> A sua ideia</div>
+        <div class="form-grid">
+          <div class="form-group full">
+            <label for="titulo">Nome do projeto <span class="obrig">*</span></label>
+            <input type="text" id="titulo" maxlength="200" placeholder="Ex.: Jornal da Revolução Industrial" />
+          </div>
+          <div class="form-group full">
+            <label for="conteudo">O que está sendo trabalhado em aula</label>
+            <input type="text" id="conteudo" placeholder="Ex.: Revolução Industrial, frações, ecossistemas, gêneros textuais…" />
+          </div>
+          <div class="form-group full">
+            <label for="ideia">Conte a ideia do jeito que vier <span class="obrig">*</span></label>
+            <textarea id="ideia" rows="5" placeholder="Ex.: Quero que os alunos se dividam em grupos e criem uma reportagem como se estivessem vivendo naquela época, com entrevistas e imagens…"></textarea>
+            <span class="dica">Não precisa estar pronta nem ter tecnologia. A gente ajuda a dar forma.</span>
+          </div>
+          <div class="form-group full">
+            <label for="objetivos">O que você espera que os alunos aprendam?</label>
+            <textarea id="objetivos" rows="3" placeholder="Ex.: Entender as mudanças no trabalho e na vida das pessoas, trabalhar em equipe…"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <section class="etapa">
+        <div class="etapa-titulo"><span class="etapa-num">3</span> O que os alunos vão produzir?</div>
+        <p class="dica" style="margin:-6px 0 12px">Pode marcar mais de um. Se não souber, marque a última opção.</p>
+        <div class="chips" id="produtos"></div>
+        <div class="sugestao-ferramentas" id="sugestao-ferramentas" hidden></div>
+      </section>
+
+      <section class="etapa">
+        <div class="etapa-titulo"><span class="etapa-num">4</span> Quando e onde</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="data_inicio">Quer começar quando?</label>
+            <input type="date" id="data_inicio" />
+          </div>
+          <div class="form-group">
+            <label for="data_entrega">Data de entrega ou apresentação</label>
+            <input type="date" id="data_entrega" />
+          </div>
+          <div class="form-group">
+            <label for="aulas">Quantas aulas pretende usar?</label>
+            <input type="number" id="aulas" min="1" inputmode="numeric" placeholder="Ex.: 4" />
+          </div>
+        </div>
+        <div class="rotulo" style="margin:18px 0 8px">O que você tem disponível?</div>
+        <div class="chips" id="recursos-disponiveis"></div>
+      </section>
+
+      <section class="etapa">
+        <div class="etapa-titulo"><span class="etapa-num">5</span> Sua familiaridade com tecnologia</div>
+        <div class="opcoes" id="familiaridade"></div>
+        <div class="form-group" style="margin-top:18px">
+          <label for="links">Links ou materiais de referência</label>
+          <textarea id="links" rows="2" placeholder="Cole aqui links de vídeos, documentos ou exemplos que inspiraram a ideia (opcional)"></textarea>
+        </div>
+      </section>
+
+      <button type="submit" class="btn btn-primario btn-grande" id="btn-enviar">Enviar projeto</button>
+
+      <div class="mensagem erro" id="msg-erro">
+        <svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg><span></span>
+      </div>
+    </form>
+
+    <div class="card enviado" id="enviado" hidden>
+      <div class="enviado-icone"><svg class="ic" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></div>
+      <h2>Projeto enviado!</h2>
+      <p>Guarde este código. Com ele você acompanha a análise e conversa com a equipe de tecnologia.</p>
+      <div class="codigo-box">
+        <span id="codigo-gerado"></span>
+        <button type="button" class="btn btn-secundario" id="btn-copiar">Copiar</button>
+      </div>
+      <div class="enviado-acoes">
+        <button type="button" class="btn btn-primario" id="btn-ver-agora">Acompanhar agora</button>
+        <button type="button" class="btn btn-secundario" id="btn-outro">Enviar outro projeto</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== Acompanhar ===================== -->
+  <section id="aba-acompanhar" hidden>
+    <form class="card busca-codigo" id="form-codigo" novalidate>
+      <label for="codigo">Código do projeto</label>
+      <div class="busca-linha">
+        <input type="text" id="codigo" maxlength="12" placeholder="Ex.: K7M2QX" autocomplete="off" />
+        <button type="submit" class="btn btn-primario">Ver projeto</button>
+      </div>
+      <div id="meus-projetos"></div>
+      <div class="mensagem erro" id="msg-codigo">
+        <svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg><span></span>
+      </div>
+    </form>
+
+    <div id="projeto"></div>
+  </section>
+</div>
+</main>
+
+<footer class="rodape">
+  <div class="rodape-inner">
+    <img src="img/logo-horizontal-azul.png" alt="Colégio Marista Birigui" />
+    <span><a href="painel-projetos.html" class="link-discreto">Painel do apoio</a> · FEITO POR LUCAS PUERTAS</span>
+  </div>
+</footer>
+
+<script>
+  const form = document.getElementById('form-projeto');
+  let produtosEscolhidos = [];
+
+  // ---------- Montagem do formulário ----------
+  document.getElementById('disciplina').innerHTML = '<option value="">Escolha…</option>' + DISCIPLINAS.map(d => `<option>${escHtml(d)}</option>`).join('');
+  document.getElementById('segmento').innerHTML = '<option value="">Escolha…</option>' + SEGMENTOS.map(s => `<option>${escHtml(s)}</option>`).join('');
+
+  document.getElementById('produtos').innerHTML = PRODUTOS.map(p =>
+    `<label class="chip"><input type="checkbox" name="produto" value="${p.id}" /><span>${escHtml(p.nome)}</span></label>`).join('');
+  document.getElementById('recursos-disponiveis').innerHTML = RECURSOS_DISPONIVEIS.map(r =>
+    `<label class="chip"><input type="checkbox" name="disponivel" value="${escHtml(r)}" /><span>${escHtml(r)}</span></label>`).join('');
+  document.getElementById('familiaridade').innerHTML = FAMILIARIDADE.map(f =>
+    `<label class="opcao opcao-texto"><input type="radio" name="familiaridade" value="${f.id}" /><span><span class="opcao-nome">${f.nome}</span><span class="dica">${f.info}</span></span></label>`).join('');
+
+  const marcados = nome => [...form.querySelectorAll(`input[name="${nome}"]:checked`)].map(i => i.value);
+
+  // "Ainda não sei" não combina com outras escolhas
+  form.querySelectorAll('input[name="produto"]').forEach(cb => cb.addEventListener('change', () => {
+    if (cb.checked && cb.value === 'naosei') form.querySelectorAll('input[name="produto"]').forEach(o => { if (o !== cb) o.checked = false; });
+    if (cb.checked && cb.value !== 'naosei') form.querySelector('input[value="naosei"]').checked = false;
+    produtosEscolhidos = marcados('produto');
+    mostrarSugestao();
+  }));
+
+  function mostrarSugestao() {
+    const el = document.getElementById('sugestao-ferramentas');
+    const ferramentas = sugerirRecursos(produtosEscolhidos).slice(0, 5);
+    if (produtosEscolhidos.includes('naosei')) {
+      el.innerHTML = 'Sem problema! Vamos analisar a sua ideia e sugerir o formato e as ferramentas.';
+      el.hidden = false;
+    } else if (ferramentas.length) {
+      el.innerHTML = `Costuma funcionar bem para isso: <strong>${ferramentas.map(f => escHtml(f.nome)).join(', ')}</strong>. A equipe confirma a melhor opção na análise.`;
+      el.hidden = false;
+    } else {
+      el.hidden = true;
+    }
+  }
+
+  // ---------- Envio ----------
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    ocultarMensagens();
+    const valor = id => document.getElementById(id).value.trim();
+    const dados = {
+      professor: valor('professor'), contato: valor('contato'), disciplina: valor('disciplina'), segmento: valor('segmento'),
+      turma: valor('turma'), num_alunos: valor('num_alunos'), titulo: valor('titulo'), conteudo: valor('conteudo'),
+      ideia: valor('ideia'), objetivos: valor('objetivos'), produtos: marcados('produto'),
+      data_inicio: valor('data_inicio'), data_entrega: valor('data_entrega'), aulas: valor('aulas'),
+      recursos_disponiveis: marcados('disponivel'), familiaridade: (marcados('familiaridade')[0] || ''), links: valor('links')
+    };
+
+    const faltando = [['professor', 'seu nome'], ['disciplina', 'a disciplina'], ['segmento', 'o segmento'], ['titulo', 'o nome do projeto'], ['ideia', 'a ideia']]
+      .filter(([c]) => !dados[c]).map(([, n]) => n);
+    if (faltando.length) {
+      mostrarMensagem('msg-erro', `Falta preencher: ${faltando.join(', ')}.`);
+      return;
+    }
+
+    const btn = document.getElementById('btn-enviar');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="loading"></span> Enviando...';
+    try {
+      const resp = await fetch('/api/projetos', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dados) });
+      const json = await resp.json();
+      if (!resp.ok) throw new Error(json.erro || 'Erro ao enviar.');
+      lembrarProjeto(json.codigo, dados.titulo);
+      document.getElementById('codigo-gerado').textContent = json.codigo;
+      form.hidden = true;
+      document.getElementById('enviado').hidden = false;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (err) {
+      mostrarMensagem('msg-erro', err.message === 'Failed to fetch' ? 'Erro de conexão. Tente novamente.' : err.message);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Enviar projeto';
+    }
+  });
+
+  document.getElementById('btn-copiar').addEventListener('click', async e => {
+    try {
+      await navigator.clipboard.writeText(document.getElementById('codigo-gerado').textContent);
+      e.target.textContent = 'Copiado!';
+    } catch { e.target.textContent = 'Anote o código'; }
+  });
+  document.getElementById('btn-ver-agora').addEventListener('click', () => {
+    abrirAba('acompanhar');
+    carregarProjeto(document.getElementById('codigo-gerado').textContent);
+  });
+  document.getElementById('btn-outro').addEventListener('click', () => {
+    form.reset();
+    produtosEscolhidos = [];
+    mostrarSugestao();
+    form.hidden = false;
+    document.getElementById('enviado').hidden = true;
+  });
+
+  // ---------- Projetos lembrados neste aparelho ----------
+  function meusProjetos() {
+    try { return JSON.parse(localStorage.getItem('meus_projetos') || '[]'); } catch { return []; }
+  }
+  function lembrarProjeto(codigo, titulo) {
+    const lista = meusProjetos().filter(p => p.codigo !== codigo);
+    lista.unshift({ codigo, titulo });
+    try { localStorage.setItem('meus_projetos', JSON.stringify(lista.slice(0, 10))); } catch {}
+  }
+  function desenharMeusProjetos() {
+    const lista = meusProjetos();
+    const el = document.getElementById('meus-projetos');
+    if (!lista.length) { el.innerHTML = ''; return; }
+    el.innerHTML = '<div class="dica" style="margin:14px 0 8px">Enviados deste aparelho:</div><div class="chips">' +
+      lista.map(p => `<button type="button" class="chip-botao" data-codigo="${escHtml(p.codigo)}"><strong>${escHtml(p.codigo)}</strong> ${escHtml(p.titulo)}</button>`).join('') + '</div>';
+    el.querySelectorAll('[data-codigo]').forEach(b => b.addEventListener('click', () => carregarProjeto(b.dataset.codigo)));
+  }
+
+  // ---------- Acompanhar ----------
+  document.getElementById('form-codigo').addEventListener('submit', e => {
+    e.preventDefault();
+    carregarProjeto(document.getElementById('codigo').value);
+  });
+
+  async function carregarProjeto(codigo) {
+    codigo = String(codigo || '').trim().toUpperCase();
+    ocultarMensagens();
+    if (!codigo) { mostrarMensagem('msg-codigo', 'Digite o código do projeto.'); return; }
+    document.getElementById('codigo').value = codigo;
+    const el = document.getElementById('projeto');
+    el.innerHTML = '<div class="card vazio"><span class="loading"></span> Carregando...</div>';
+    try {
+      const resp = await fetch(`/api/projetos/acompanhar/${encodeURIComponent(codigo)}`);
+      const json = await resp.json();
+      if (!resp.ok) throw new Error(json.erro || 'Erro ao carregar.');
+      lembrarProjeto(json.codigo, json.titulo);
+      desenharMeusProjetos();
+      desenharProjeto(json);
+      history.replaceState(null, '', `?codigo=${json.codigo}`);
+    } catch (err) {
+      el.innerHTML = '';
+      mostrarMensagem('msg-codigo', err.message === 'Failed to fetch' ? 'Erro de conexão. Tente novamente.' : err.message);
+    }
+  }
+
+  function desenharProjeto(p) {
+    const st = statusProjeto(p.status);
+    const etapas = STATUS_PROJETO.filter(s => s.id !== 'arquivado');
+    const atual = etapas.findIndex(s => s.id === p.status);
+    const recursos = p.recursos_recomendados.map(recursoPorId).filter(Boolean);
+    // valor já vem escapado; linhas vazias não aparecem
+    const linha = (rotulo, valor, livre) => valor ? `<div><dt>${rotulo}</dt><dd${livre ? ' class="texto-livre"' : ''}>${valor}</dd></div>` : '';
+
+    document.getElementById('projeto').innerHTML = `
+      <article class="card projeto">
+        <div class="projeto-topo">
+          <span class="badge">${escHtml(p.codigo)}</span>
+          <h2>${escHtml(p.titulo)}</h2>
+          <p class="dica">${escHtml(p.disciplina)} · ${escHtml(p.segmento)}${p.turma ? ' · ' + escHtml(p.turma) : ''}</p>
+        </div>
+
+        ${p.status === 'arquivado' ? `<div class="aviso falta"><div><div class="aviso-titulo">Arquivado</div><p>${st.info}</p></div></div>` : `
+        <ol class="linha-status">
+          ${etapas.map((s, i) => `<li class="${i < atual ? 'feito' : i === atual ? 'atual' : ''}"><span></span>${s.nome}</li>`).join('')}
+        </ol>
+        <p class="status-info">${st.info}</p>`}
+
+        ${p.proposta ? `<section class="bloco destaque-bloco"><h3>Proposta da equipe de tecnologia</h3><div class="texto-livre">${escHtml(p.proposta)}</div></section>` : ''}
+
+        ${recursos.length ? `<section class="bloco"><h3>Ferramentas recomendadas</h3><div class="recursos-grid">
+          ${recursos.map(r => `<div class="recurso"><div class="recurso-topo"><strong>${escHtml(r.nome)}</strong><span class="dica">${escHtml(r.categoria)}</span></div><p>${escHtml(r.descricao)}</p>${r.link ? `<a href="${escHtml(r.link)}" target="_blank" rel="noopener">Abrir ${escHtml(r.nome)} ↗</a>` : ''}</div>`).join('')}
+        </div></section>` : ''}
+
+        ${p.proximos_passos ? `<section class="bloco"><h3>Próximos passos</h3><div class="texto-livre">${escHtml(p.proximos_passos)}</div></section>` : ''}
+
+        ${p.reuniao ? `<section class="bloco"><h3>Conversa marcada</h3><p><strong>${formatarDataHora(p.reuniao)}</strong></p></section>` : ''}
+
+        <details class="bloco detalhes">
+          <summary>O que você enviou</summary>
+          <dl class="ficha">
+            ${linha('Conteúdo', escHtml(p.conteudo))}
+            ${linha('Ideia', escHtml(p.ideia), true)}
+            ${linha('Objetivos', escHtml(p.objetivos), true)}
+            ${linha('Produção', p.produtos.map(nomeProduto).map(escHtml).join(', '))}
+            ${linha('Começo', p.data_inicio ? formatarData(p.data_inicio) : '')}
+            ${linha('Entrega', p.data_entrega ? formatarData(p.data_entrega) : '')}
+            ${linha('Aulas', p.aulas || '')}
+            ${linha('Alunos', p.num_alunos || '')}
+            ${linha('Disponível', p.recursos_disponiveis.map(escHtml).join(', '))}
+            ${linha('Links', escHtml(p.links), true)}
+          </dl>
+        </details>
+
+        <section class="bloco">
+          <h3>Conversa com a equipe</h3>
+          <div class="conversa">${p.mensagens.length ? p.mensagens.map(balao).join('') : '<p class="dica">Nenhuma mensagem ainda. Se quiser complementar a ideia ou tirar uma dúvida, escreva abaixo.</p>'}</div>
+          <form class="responder" id="form-mensagem">
+            <textarea id="nova-mensagem" rows="2" placeholder="Escreva uma mensagem…"></textarea>
+            <button type="submit" class="btn btn-primario">Enviar</button>
+          </form>
+        </section>
+      </article>`;
+
+    document.getElementById('form-mensagem').addEventListener('submit', async e => {
+      e.preventDefault();
+      const campo = document.getElementById('nova-mensagem');
+      const textoMsg = campo.value.trim();
+      if (!textoMsg) return;
+      const btn = e.target.querySelector('button');
+      btn.disabled = true;
+      try {
+        const resp = await fetch(`/api/projetos/acompanhar/${encodeURIComponent(p.codigo)}/mensagens`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ texto: textoMsg })
+        });
+        if (!resp.ok) throw new Error((await resp.json()).erro);
+        carregarProjeto(p.codigo);
+      } catch (err) {
+        alert(err.message || 'Erro ao enviar a mensagem.');
+        btn.disabled = false;
+      }
+    });
+  }
+
+  function balao(m) {
+    const quando = new Date(m.criado_em).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+    return `<div class="balao ${m.autor === 'apoio' ? 'dele' : 'meu'}"><div class="balao-autor">${m.autor === 'apoio' ? 'Equipe de tecnologia' : 'Você'} · ${quando}</div><div class="texto-livre">${escHtml(m.texto)}</div></div>`;
+  }
+
+  // ---------- Abas ----------
+  function abrirAba(aba) {
+    document.querySelectorAll('[data-aba]').forEach(b => b.classList.toggle('ativo', b.dataset.aba === aba));
+    document.getElementById('aba-novo').hidden = aba !== 'novo';
+    document.getElementById('aba-acompanhar').hidden = aba !== 'acompanhar';
+    if (aba === 'acompanhar') desenharMeusProjetos();
+  }
+  document.querySelectorAll('[data-aba]').forEach(b => b.addEventListener('click', () => abrirAba(b.dataset.aba)));
+
+  const codigoNaUrl = new URLSearchParams(location.search).get('codigo');
+  if (codigoNaUrl) {
+    abrirAba('acompanhar');
+    carregarProjeto(codigoNaUrl);
+  }
+</script>
+</body>
+</html>

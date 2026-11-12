@@ -10,6 +10,13 @@ function formatarData(dataISO, opcoes = { weekday: 'short', day: '2-digit', mont
   return new Date(Number(y), Number(m) - 1, Number(d)).toLocaleDateString('pt-BR', opcoes);
 }
 
+// "2026-11-20T14:30" -> "sexta-feira, 20 de novembro às 14:30"
+function formatarDataHora(valor) {
+  const [data, hora] = String(valor || '').split('T');
+  if (!data) return '';
+  return formatarData(data, { weekday: 'long', day: '2-digit', month: 'long' }) + (hora ? ` às ${hora.slice(0, 5)}` : '');
+}
+
 function escHtml(str) {
   return String(str ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
