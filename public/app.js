@@ -1,5 +1,40 @@
 // Utilidades compartilhadas entre as páginas
 
+// Senha das páginas do relatório (secretaria e projetos). Fica no navegador:
+// afasta curiosos, mas quem abrir o código-fonte consegue vê-la.
+const SENHA_RELATORIO = 'M@rista2026';
+
+function relatorioLiberado() {
+  try { return sessionStorage.getItem('relatorio_auth') === '1'; } catch { return false; }
+}
+
+// Mostra a tela de senha (#tela-senha) até a pessoa acertar; depois chama aoLiberar
+function protegerRelatorio(aoLiberar) {
+  const tela = document.getElementById('tela-senha');
+  const campo = document.getElementById('input-senha');
+  const erro = document.getElementById('senha-erro');
+  const entrar = () => {
+    if (campo.value === SENHA_RELATORIO) {
+      try { sessionStorage.setItem('relatorio_auth', '1'); } catch {}
+      tela.classList.remove('visivel');
+      aoLiberar();
+    } else {
+      erro.style.display = 'block';
+      campo.value = '';
+      campo.focus();
+    }
+  };
+  document.getElementById('btn-entrar').addEventListener('click', entrar);
+  campo.addEventListener('keydown', e => { if (e.key === 'Enter') entrar(); });
+
+  if (relatorioLiberado()) {
+    aoLiberar();
+  } else {
+    tela.classList.add('visivel');
+    campo.focus();
+  }
+}
+
 function hojeISO() {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;

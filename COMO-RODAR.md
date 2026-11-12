@@ -69,9 +69,10 @@ no Supabase na primeira vez que o servidor sobe.
 
 ### Hub de projetos
 - **Professores:** http://localhost:3000/projetos.html (enviam a ideia e acompanham pelo código)
-- **Painel do apoio:** http://localhost:3000/painel-projetos.html (link discreto no rodapé da página de projetos)
+- **Painel do apoio:** dentro do Relatório, aba **Projetos** (http://localhost:3000/painel-projetos.html)
 
-O painel abre sem senha: quem tiver o link consegue ver e alterar os projetos.
+O painel usa a mesma senha do relatório, definida em `SENHA_RELATORIO` no `public/app.js`.
+Ela fica no navegador: afasta curiosos, mas quem abrir o código-fonte consegue vê-la.
 
 Disciplinas, segmentos e o catálogo de ferramentas ficam em `public/recursos.js`.
 As tabelas `projetos` e `projeto_mensagens` são criadas automaticamente no Supabase.

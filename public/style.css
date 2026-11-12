@@ -793,11 +793,21 @@ details.dia summary {
 .responder { display: flex; gap: 8px; align-items: flex-end; }
 .responder textarea { min-height: 46px; }
 
-.link-discreto { color: inherit; }
 
 /* ==========================================================
    Painel de projetos (apoio)
    ========================================================== */
+.barra-acoes {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.barra-acoes h2 { font-size: 1.1rem; color: var(--marinho); }
+
 .status-cards {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -997,7 +1007,10 @@ details.dia summary {
   border-radius: 12px;
 }
 
-.segmentado button {
+.segmentado button, .segmentado a {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
   padding: 8px 18px;
   border: none;
   border-radius: 9px;
@@ -1009,7 +1022,8 @@ details.dia summary {
   cursor: pointer;
 }
 
-.segmentado button.ativo { background: var(--marinho); color: var(--branco); }
+.segmentado button.ativo, .segmentado a.ativo { background: var(--marinho); color: var(--branco); }
+.segmentado a:not(.ativo):hover, .segmentado button:not(.ativo):hover { color: var(--marinho); }
 
 .filtros {
   display: grid;
