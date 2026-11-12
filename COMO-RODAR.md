@@ -71,9 +71,7 @@ no Supabase na primeira vez que o servidor sobe.
 - **Professores:** http://localhost:3000/projetos.html (enviam a ideia e acompanham pelo código)
 - **Painel do apoio:** http://localhost:3000/painel-projetos.html (link discreto no rodapé da página de projetos)
 
-O painel exige a senha guardada na variável de ambiente `PROJETOS_SENHA`.
-No Render: **Environment > Add Environment Variable**, Key `PROJETOS_SENHA`, Value = a senha que você escolher.
-Sem essa variável o painel não abre (aparece um aviso).
+O painel abre sem senha: quem tiver o link consegue ver e alterar os projetos.
 
 Disciplinas, segmentos e o catálogo de ferramentas ficam em `public/recursos.js`.
 As tabelas `projetos` e `projeto_mensagens` são criadas automaticamente no Supabase.

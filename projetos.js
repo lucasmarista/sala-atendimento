@@ -1,11 +1,9 @@
 // Hub de projetos: professores enviam ideias e a equipe de tecnologia analisa e responde.
-// O professor acompanha pelo código que recebe ao enviar; o painel do apoio exige a senha
-// definida na variável de ambiente PROJETOS_SENHA (configurada no Render).
+// O professor acompanha pelo código que recebe ao enviar; o painel do apoio abre sem senha.
 const crypto = require('crypto');
 
 const STATUS = ['novo', 'em_analise', 'proposta', 'em_andamento', 'concluido', 'arquivado'];
 const PRIORIDADES = ['baixa', 'normal', 'alta'];
-const DURACAO_SESSAO_MS = 12 * 60 * 60 * 1000;
 
 // ---------- Utilidades ----------
 
@@ -28,36 +26,6 @@ const rota = fn => async (req, res) => {
     if (!res.headersSent) res.status(500).json({ erro: 'Erro interno. Tente novamente.' });
   }
 };
-
-// ---------- Acesso do apoio (senha no servidor) ----------
-
-const senha = () => process.env.PROJETOS_SENHA || '';
-const assinar = exp => crypto.createHmac('sha256', senha()).update(String(exp)).digest('hex');
-
-function tokenValido(token) {
-  if (!senha() || !token) return false;
-  const [exp, assinatura] = String(token).split('.');
-  if (!exp || !assinatura || Number(exp) < Date.now()) return false;
-  const esperado = assinar(exp);
-  return assinatura.length === esperado.length &&
-    crypto.timingSafeEqual(Buffer.from(assinatura), Buffer.from(esperado));
-}
-
-function exigirApoio(req, res, next) {
-  const token = (req.get('Authorization') || '').replace(/^Bearer\s+/i, '');
-  if (tokenValido(token)) return next();
-  res.status(401).json({ erro: 'Sessão expirada. Entre de novo com a senha.' });
-}
-
-// Limita tentativas de senha por IP (10 a cada 15 minutos)
-const tentativas = new Map();
-function podeTentar(ip) {
-  const agora = Date.now();
-  const t = tentativas.get(ip);
-  if (!t || t.ate < agora) { tentativas.set(ip, { n: 1, ate: agora + 15 * 60 * 1000 }); return true; }
-  t.n++;
-  return t.n <= 10;
-}
 
 // ---------- Formato das respostas ----------
 
@@ -222,24 +190,8 @@ function registrarRotasProjetos(app, pool) {
     res.status(201).json({ ok: true });
   }));
 
-  // Entrada no painel do apoio
-  app.post('/api/projetos/login', rota(async (req, res) => {
-    if (!senha()) {
-      return res.status(503).json({ erro: 'A senha do painel ainda não foi configurada no servidor (variável PROJETOS_SENHA).' });
-    }
-    if (!podeTentar(req.ip)) return res.status(429).json({ erro: 'Muitas tentativas. Espere 15 minutos.' });
-
-    const hash = v => crypto.createHash('sha256').update(String(v)).digest();
-    if (!crypto.timingSafeEqual(hash(texto((req.body || {}).senha, 200)), hash(senha()))) {
-      return res.status(401).json({ erro: 'Senha incorreta.' });
-    }
-    tentativas.delete(req.ip);
-    const exp = Date.now() + DURACAO_SESSAO_MS;
-    res.json({ token: `${exp}.${assinar(exp)}` });
-  }));
-
   // Lista para o painel
-  app.get('/api/projetos', exigirApoio, rota(async (req, res) => {
+  app.get('/api/projetos', rota(async (req, res) => {
     const r = await pool.query(`
       SELECT p.id, p.codigo, p.professor, p.disciplina, p.segmento, p.turma, p.titulo, p.produtos,
              p.status, p.prioridade, p.data_inicio, p.data_entrega, p.reuniao, p.criado_em, p.atualizado_em,
@@ -253,7 +205,7 @@ function registrarRotasProjetos(app, pool) {
   }));
 
   // Detalhe para o painel (marca as mensagens como vistas)
-  app.get('/api/projetos/:id', exigirApoio, rota(async (req, res) => {
+  app.get('/api/projetos/:id', rota(async (req, res) => {
     const id = inteiro(req.params.id);
     const r = await pool.query('SELECT * FROM projetos WHERE id = $1', [id]);
     if (r.rows.length === 0) return res.status(404).json({ erro: 'Projeto não encontrado.' });
@@ -262,7 +214,7 @@ function registrarRotasProjetos(app, pool) {
   }));
 
   // Análise do apoio: status, recursos, proposta etc.
-  app.patch('/api/projetos/:id', exigirApoio, rota(async (req, res) => {
+  app.patch('/api/projetos/:id', rota(async (req, res) => {
     const id = inteiro(req.params.id);
     const b = req.body || {};
     const mudancas = {};
@@ -292,7 +244,7 @@ function registrarRotasProjetos(app, pool) {
   }));
 
   // Apoio responde por mensagem
-  app.post('/api/projetos/:id/mensagens', exigirApoio, rota(async (req, res) => {
+  app.post('/api/projetos/:id/mensagens', rota(async (req, res) => {
     const id = inteiro(req.params.id);
     const msg = texto((req.body || {}).texto, 3000);
     if (!msg) return res.status(400).json({ erro: 'Escreva a mensagem.' });
@@ -304,7 +256,7 @@ function registrarRotasProjetos(app, pool) {
   }));
 
   // Excluir projeto (e as mensagens dele)
-  app.delete('/api/projetos/:id', exigirApoio, rota(async (req, res) => {
+  app.delete('/api/projetos/:id', rota(async (req, res) => {
     const r = await pool.query('DELETE FROM projetos WHERE id = $1', [inteiro(req.params.id)]);
     if (r.rowCount === 0) return res.status(404).json({ erro: 'Projeto não encontrado.' });
     res.json({ ok: true });

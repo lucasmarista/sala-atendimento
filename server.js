@@ -48,8 +48,6 @@ async function inicializarBanco() {
   console.log('Banco de dados pronto.');
 }
 
-// O Render fica na frente do servidor; isso faz req.ip ser o IP real de quem acessa
-app.set('trust proxy', 1);
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 registrarRotasProjetos(app, pool);

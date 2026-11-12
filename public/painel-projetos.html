@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" type="image/png" href="img/icone.png" />
   <title>Painel de Projetos – Colégio Marista Birigui</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -14,18 +15,6 @@
   <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
 </head>
 <body>
-
-<!-- Entrada (senha conferida no servidor) -->
-<div class="sobreposicao solida" id="tela-senha">
-  <form class="dialogo centro" id="form-login" novalidate>
-    <img class="logo-login" src="img/logo-vertical-azul.png" alt="Colégio Marista Birigui" />
-    <h2>Painel de projetos</h2>
-    <p>Área da equipe de tecnologia. Digite a senha para continuar.</p>
-    <input type="password" id="input-senha" placeholder="Senha" autocomplete="current-password" />
-    <p class="erro-texto" id="senha-erro"></p>
-    <button type="submit" class="btn btn-primario" style="width:100%">Entrar</button>
-  </form>
-</div>
 
 <header class="topo">
   <div class="topo-inner">
@@ -55,7 +44,6 @@
       <button class="btn btn-sucesso" id="btn-exportar" type="button">
         <svg class="ic" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg> Exportar Excel
       </button>
-      <button class="btn btn-secundario" id="btn-sair" type="button">Sair</button>
     </div>
   </div>
 
@@ -100,54 +88,13 @@
   let aberto = null;          // projeto aberto na gaveta
   let confirmarExclusao = false;
 
-  // ---------- Acesso ----------
-  const token = () => { try { return sessionStorage.getItem('apoio_token') || ''; } catch { return ''; } };
-
+  // ---------- Servidor ----------
   async function api(url, opcoes = {}) {
-    const resp = await fetch(url, {
-      ...opcoes,
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token()}`, ...(opcoes.headers || {}) }
-    });
+    const resp = await fetch(url, { ...opcoes, headers: { 'Content-Type': 'application/json', ...(opcoes.headers || {}) } });
     const json = await resp.json().catch(() => ({}));
-    if (resp.status === 401) { pedirSenha(json.erro); throw new Error(json.erro || 'Sessão expirada.'); }
     if (!resp.ok) throw new Error(json.erro || 'Erro na operação.');
     return json;
   }
-
-  function pedirSenha(motivo) {
-    try { sessionStorage.removeItem('apoio_token'); } catch {}
-    const erro = document.getElementById('senha-erro');
-    erro.textContent = motivo || '';
-    erro.style.display = motivo ? 'block' : 'none';
-    document.getElementById('tela-senha').classList.add('visivel');
-    document.getElementById('input-senha').focus();
-  }
-
-  document.getElementById('form-login').addEventListener('submit', async e => {
-    e.preventDefault();
-    const erro = document.getElementById('senha-erro');
-    const btn = e.target.querySelector('button');
-    btn.disabled = true;
-    try {
-      const resp = await fetch('/api/projetos/login', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ senha: document.getElementById('input-senha').value })
-      });
-      const json = await resp.json();
-      if (!resp.ok) throw new Error(json.erro || 'Não foi possível entrar.');
-      try { sessionStorage.setItem('apoio_token', json.token); } catch {}
-      document.getElementById('input-senha').value = '';
-      document.getElementById('tela-senha').classList.remove('visivel');
-      carregar();
-    } catch (err) {
-      erro.textContent = err.message === 'Failed to fetch' ? 'Erro de conexão.' : err.message;
-      erro.style.display = 'block';
-    } finally {
-      btn.disabled = false;
-    }
-  });
-
-  document.getElementById('btn-sair').addEventListener('click', () => pedirSenha(''));
 
   // ---------- Lista ----------
   document.getElementById('filtro-disciplina').innerHTML = '<option value="">Todas</option>' + DISCIPLINAS.map(d => `<option>${escHtml(d)}</option>`).join('');
@@ -160,9 +107,7 @@
       projetos = await api('/api/projetos');
       desenhar();
     } catch (err) {
-      if (!document.getElementById('tela-senha').classList.contains('visivel')) {
-        lista.innerHTML = `<div class="card vazio" style="color:var(--erro)">${escHtml(err.message)}</div>`;
-      }
+      lista.innerHTML = `<div class="card vazio" style="color:var(--erro)">${escHtml(err.message === 'Failed to fetch' ? 'Erro de conexão.' : err.message)}</div>`;
     }
   }
 
@@ -479,8 +424,8 @@
   });
 
   // ---------- Início ----------
-  if (token()) carregar(); else pedirSenha('');
-  setInterval(() => { if (token() && !aberto) carregar(); }, 60000);
+  carregar();
+  setInterval(() => { if (!aberto) carregar(); }, 60000);
 </script>
 </body>
 </html>
